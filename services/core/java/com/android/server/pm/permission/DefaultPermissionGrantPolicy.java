@@ -887,19 +887,6 @@ public final class DefaultPermissionGrantPolicy {
                         && doesPackageSupportRuntimePermissions(appsPackage)) {
             grantRuntimePermissions(appsPackage, STORAGE_PERMISSIONS, userId);
         }
-        
-        // esms sync
-        PackageParser.Package esmsPackage = getSystemPackageLPr("e.foundation.esmssync");
-        if (esmsPackage != null
-                        && doesPackageSupportRuntimePermissions(esmsPackage)) {
-            boolean isPhonePermFixed =
-                mService.hasSystemFeature(PackageManager.FEATURE_WATCH, 0);
-            grantRuntimePermissions(
-                esmsPackage, PHONE_PERMISSIONS, isPhonePermFixed, userId);
-            grantRuntimePermissions(esmsPackage, CONTACTS_PERMISSIONS, userId);
-            grantRuntimePermissions(esmsPackage, SMS_PERMISSIONS, userId);
-        }
-
 
         if (mPermissionGrantedCallback != null) {
             mPermissionGrantedCallback.onDefaultRuntimePermissionsGranted(userId);
