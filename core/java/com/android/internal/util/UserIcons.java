@@ -30,15 +30,15 @@ import com.android.internal.R;
  */
 public class UserIcons {
 
-    private static final int[] USER_ICON_COLORS = {
-        R.color.user_icon_1,
-        R.color.user_icon_2,
-        R.color.user_icon_3,
-        R.color.user_icon_4,
-        R.color.user_icon_5,
-        R.color.user_icon_6,
-        R.color.user_icon_7,
-        R.color.user_icon_8
+    private static final int[] USER_ICON_DRAWABLES = {
+        R.drawable.ic_user_icon_0,
+        R.drawable.ic_user_icon_1,
+        R.drawable.ic_user_icon_2,
+        R.drawable.ic_user_icon_3,
+        R.drawable.ic_user_icon_4,
+        R.drawable.ic_user_icon_5,
+        R.drawable.ic_user_icon_6,
+        R.drawable.ic_user_icon_7
     };
 
     /**
@@ -67,13 +67,12 @@ public class UserIcons {
      * @param light whether we want a light icon (suitable for a dark background)
      */
     public static Drawable getDefaultUserIcon(Resources resources, int userId, boolean light) {
-        int colorResId = light ? R.color.user_icon_default_white : R.color.user_icon_default_gray;
+        int drawableResId = R.drawable.ic_user_icon_gray;
         if (userId != UserHandle.USER_NULL) {
             // Return colored icon instead
-            colorResId = USER_ICON_COLORS[userId % USER_ICON_COLORS.length];
+            drawableResId = USER_ICON_DRAWABLES[userId % USER_ICON_DRAWABLES.length];
         }
-        Drawable icon = resources.getDrawable(R.drawable.ic_account_circle, null).mutate();
-        icon.setColorFilter(resources.getColor(colorResId, null), Mode.SRC_IN);
+        Drawable icon = resources.getDrawable(drawableResId, null);
         icon.setBounds(0, 0, icon.getIntrinsicWidth(), icon.getIntrinsicHeight());
         return icon;
     }

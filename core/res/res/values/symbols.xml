@@ -1447,6 +1447,16 @@
   <java-symbol type="color" name="profile_badge_3" />
   <java-symbol type="color" name="instant_app_badge" />
 
+  <java-symbol type="drawable" name="ic_user_icon_0" />
+  <java-symbol type="drawable" name="ic_user_icon_1" />
+  <java-symbol type="drawable" name="ic_user_icon_2" />
+  <java-symbol type="drawable" name="ic_user_icon_3" />
+  <java-symbol type="drawable" name="ic_user_icon_4" />
+  <java-symbol type="drawable" name="ic_user_icon_5" />
+  <java-symbol type="drawable" name="ic_user_icon_6" />
+  <java-symbol type="drawable" name="ic_user_icon_7" />
+  <java-symbol type="drawable" name="ic_user_icon_gray" />
+
   <java-symbol type="layout" name="action_bar_home" />
   <java-symbol type="layout" name="action_bar_title_item" />
   <java-symbol type="layout" name="action_menu_item_layout" />
