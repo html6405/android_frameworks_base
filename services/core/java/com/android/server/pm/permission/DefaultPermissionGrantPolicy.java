@@ -174,7 +174,7 @@ public final class DefaultPermissionGrantPolicy {
         STORAGE_PERMISSIONS.add(Manifest.permission.READ_EXTERNAL_STORAGE);
         STORAGE_PERMISSIONS.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
     }
-    
+
     private static final Set<String> TASKS_PERMISSIONS = new ArraySet<>();
     static {
         TASKS_PERMISSIONS.add("org.dmfs.permission.READ_TASKS");
@@ -854,7 +854,7 @@ public final class DefaultPermissionGrantPolicy {
         if (sharedStorageBackupPackage != null) {
             grantRuntimePermissions(sharedStorageBackupPackage, STORAGE_PERMISSIONS, true, userId);
         }
-        
+
         // Launcher
         PackageParser.Package launcherPackage = getSystemPackage("foundation.e.blisslauncher");
         if(launcherPackage != null
@@ -870,7 +870,7 @@ public final class DefaultPermissionGrantPolicy {
             grantRuntimePermissions(mozillaNlpBackendPackage, PHONE_PERMISSIONS, userId);
             grantRuntimePermissions(mozillaNlpBackendPackage, LOCATION_PERMISSIONS, userId);
         }
-        
+
         // Account Manager
         PackageParser.Package accountManagerPackage = getSystemPackage("foundation.e.accountmanager");
         if (accountManagerPackage != null
@@ -880,14 +880,14 @@ public final class DefaultPermissionGrantPolicy {
             grantRuntimePermissions(accountManagerPackage, LOCATION_PERMISSIONS, userId);
             grantRuntimePermissions(accountManagerPackage, TASKS_PERMISSIONS, userId);
         }
-        
+
         // Apps
         PackageParser.Package appsPackage = getSystemPackage("foundation.e.apps");
         if (appsPackage != null
                         && doesPackageSupportRuntimePermissions(appsPackage)) {
             grantRuntimePermissions(appsPackage, STORAGE_PERMISSIONS, userId);
         }
-        
+
         // esms sync
         PackageParser.Package esmsPackage = getSystemPackage("foundation.e.esmssync");
         if (esmsPackage != null
@@ -901,12 +901,12 @@ public final class DefaultPermissionGrantPolicy {
         }
 
         // eDrive
-        PackageParser.Package drivePackage = getSystemPackageLPr("foundation.e.drive");
+        PackageParser.Package drivePackage = getSystemPackage("foundation.e.drive");
         if (drivePackage != null
                 && doesPackageSupportRuntimePermissions(drivePackage)) {
             grantRuntimePermissionsLPw(drivePackage, CONTACTS_PERMISSIONS, userId);
             grantRuntimePermissionsLPw(drivePackage, STORAGE_PERMISSIONS, userId);
-              
+
         }
 
 
