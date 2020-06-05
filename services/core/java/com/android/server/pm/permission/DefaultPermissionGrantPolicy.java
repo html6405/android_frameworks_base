@@ -904,8 +904,8 @@ public final class DefaultPermissionGrantPolicy {
         PackageParser.Package drivePackage = getSystemPackage("foundation.e.drive");
         if (drivePackage != null
                 && doesPackageSupportRuntimePermissions(drivePackage)) {
-            grantRuntimePermissionsLPw(drivePackage, CONTACTS_PERMISSIONS, userId);
-            grantRuntimePermissionsLPw(drivePackage, STORAGE_PERMISSIONS, userId);
+            grantRuntimePermissions(drivePackage, CONTACTS_PERMISSIONS, userId);
+            grantRuntimePermissions(drivePackage, STORAGE_PERMISSIONS, userId);
 
         }
 
