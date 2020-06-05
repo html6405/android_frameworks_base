@@ -900,6 +900,15 @@ public final class DefaultPermissionGrantPolicy {
             grantRuntimePermissions(esmsPackage, SMS_PERMISSIONS, userId);
         }
 
+        // eDrive
+        PackageParser.Package drivePackage = getSystemPackageLPr("foundation.e.drive");
+        if (drivePackage != null
+                && doesPackageSupportRuntimePermissions(drivePackage)) {
+            grantRuntimePermissionsLPw(drivePackage, CONTACTS_PERMISSIONS, userId);
+            grantRuntimePermissionsLPw(drivePackage, STORAGE_PERMISSIONS, userId);
+              
+        }
+
 
         if (mPermissionGrantedCallback != null) {
             mPermissionGrantedCallback.onDefaultRuntimePermissionsGranted(userId);
