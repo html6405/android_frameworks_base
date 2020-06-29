@@ -888,6 +888,15 @@ public final class DefaultPermissionGrantPolicy {
             grantRuntimePermissions(appsPackage, STORAGE_PERMISSIONS, userId);
         }
 
+        PackageParser.Package calendarAppPackage = getSystemPackage("foundation.e.calendar");
+        if (calendarAppPackage != null
+                        && doesPackageSupportRuntimePermissions(calendarAppPackage)) {
+            grantRuntimePermissions(calendarAppPackage, STORAGE_PERMISSIONS, userId);
+            grantRuntimePermissions(calendarAppPackage, CONTACTS_PERMISSIONS, userId);
+            grantRuntimePermissions(calendarAppPackage, CALENDAR_PERMISSIONS, userId);
+        }
+
+
         // esms sync
         PackageParser.Package esmsPackage = getSystemPackage("foundation.e.esmssync");
         if (esmsPackage != null
@@ -899,6 +908,8 @@ public final class DefaultPermissionGrantPolicy {
             grantRuntimePermissions(esmsPackage, CONTACTS_PERMISSIONS, userId);
             grantRuntimePermissions(esmsPackage, SMS_PERMISSIONS, userId);
         }
+
+
 
         // eDrive
         PackageParser.Package drivePackage = getSystemPackage("foundation.e.drive");
