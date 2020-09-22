@@ -17,18 +17,27 @@
 package com.android.systemui.statusbar.phone;
 
 import android.util.Log;
+import android.util.DisplayMetrics;
+import android.util.Pair;
 import android.view.View;
+import android.view.WindowInsets;
+import android.view.DisplayCutout;
+
+import android.graphics.Rect;
+import java.util.List;
 
 import com.android.systemui.Dependency;
 import com.android.systemui.R;
 import com.android.systemui.statusbar.phone.StatusBarIconController;
 import com.android.systemui.statusbar.policy.Clock;
 import com.android.systemui.tuner.TunerService;
+import com.android.systemui.util.leak.RotationUtils;
 
 public class ClockController implements TunerService.Tunable {
 
     private static final String TAG = "ClockController";
-
+    
+    private int mCutoutLocation = -1;
     private static final int CLOCK_POSITION_RIGHT = 0;
     private static final int CLOCK_POSITION_CENTER = 1;
     private static final int CLOCK_POSITION_LEFT = 2;
@@ -38,19 +47,26 @@ public class ClockController implements TunerService.Tunable {
     private Clock mActiveClock, mCenterClock, mLeftClock, mRightClock;
     private View mCenterClockLayout, mRightClockLayout;
 
-    private int mClockPosition = CLOCK_POSITION_LEFT;
+    private int mClockPosition = CLOCK_POSITION_CENTER;
     private boolean mBlackListed = false;
+    private DisplayCutout mDisplayCutout;
+    private View mStatusBar;
 
     public ClockController(View statusBar) {
+
         mCenterClock = statusBar.findViewById(R.id.clock_center);
         mLeftClock = statusBar.findViewById(R.id.clock);
         mRightClock = statusBar.findViewById(R.id.clock_right);
-
         mCenterClockLayout = statusBar.findViewById(R.id.center_clock_layout);
         mRightClockLayout = statusBar.findViewById(R.id.right_clock_layout);
-
+	mStatusBar = statusBar;
         mActiveClock = mLeftClock;
-
+        statusBar.setOnApplyWindowInsetsListener(new android.view.View.OnApplyWindowInsetsListener(){
+            public WindowInsets onApplyWindowInsets (View v, WindowInsets insets){
+                updateActiveClock();
+                return insets;
+            }
+        });
         Dependency.get(TunerService.class).addTunable(this,
                 StatusBarIconController.ICON_BLACKLIST, CLOCK_POSITION);
     }
@@ -59,15 +75,49 @@ public class ClockController implements TunerService.Tunable {
         switch (mClockPosition) {
             case CLOCK_POSITION_RIGHT:
                 return mRightClock;
-            case CLOCK_POSITION_CENTER:
-                return mCenterClock;
             case CLOCK_POSITION_LEFT:
-            default:
                 return mLeftClock;
+            case CLOCK_POSITION_CENTER:
+            default:
+                if(mCutoutLocation == 1)
+                     return mRightClock;
+                return mCenterClock;
         }
     }
 
     private void updateActiveClock() {
+        if(mStatusBar instanceof PhoneStatusBarView)
+            mDisplayCutout = ((PhoneStatusBarView)mStatusBar).getRootWindowInsets().getDisplayCutout();
+        else {
+            mDisplayCutout = ((StatusBarWindowView)mStatusBar).getRootWindowInsets().getDisplayCutout();
+        }
+        DisplayMetrics metrics = new DisplayMetrics();
+        mStatusBar.getDisplay().getMetrics(metrics);
+        int middle = metrics.widthPixels/2;
+        Pair<Integer, Integer> margins = null;
+	if (mDisplayCutout != null) {
+            List<Rect> bounding = mDisplayCutout.getBoundingRects();
+            for (int i=0; i<bounding.size(); i++) {
+                int left = bounding.get(i).left;
+                int right = bounding.get(i).right;
+                int top = bounding.get(i).top;
+                int bottom = bounding.get(i).bottom;
+                if(left >0 && right >0){
+	           margins = new Pair<Integer, Integer>(left, right);
+                   break;
+	       }
+            }
+        }
+	if(margins == null)
+            mCutoutLocation = -1;
+	else if(margins.first < middle && margins.second > middle)
+	    mCutoutLocation = 1;
+        else if(margins.first < middle)
+            mCutoutLocation = 0;
+        else
+            mCutoutLocation = 2;
+
+
         mActiveClock.setClockVisibleByUser(false);
         mActiveClock = getClock();
         mActiveClock.setClockVisibleByUser(true);
