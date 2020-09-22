@@ -26,34 +26,51 @@
     android:gravity="center_vertical"
     >
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/status_icon_area"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentEnd="true"
-        android:gravity="center_vertical|end" >
-        <FrameLayout android:id="@+id/system_icons_container"
-            android:layout_width="0dp"
+        android:layout_alignParentStart="true"
+        android:gravity="center_vertical|start" >
+        <com.android.keyguard.CarrierText
+            android:id="@+id/keyguard_carrier_text"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_marginStart="@dimen/system_icons_super_container_margin_start"
-            android:gravity="center_vertical|end"
-            android:paddingEnd="@dimen/system_icons_keyguard_padding_end" >
-            <include layout="@layout/system_icons" />
-        </FrameLayout>
-
+            android:layout_marginStart="@dimen/keyguard_carrier_text_margin"
+            android:gravity="center_vertical"
+            android:ellipsize="marquee"
+            android:textDirection="locale"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="?attr/wallpaperTextColorSecondary"
+            android:singleLine="true"
+            systemui:showMissingSim="true"
+            systemui:showAirplaneMode="true" />
+ 
         <com.android.systemui.statusbar.phone.MultiUserSwitch android:id="@+id/multi_user_switch"
             android:layout_width="@dimen/multi_user_switch_width_keyguard"
             android:layout_height="match_parent"
             android:background="@drawable/ripple_drawable"
-            android:layout_marginEnd="@dimen/multi_user_switch_keyguard_margin">
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="@dimen/multi_user_switch_keyguard_margin">
             <ImageView android:id="@+id/multi_user_avatar"
                 android:layout_width="@dimen/multi_user_avatar_keyguard_size"
                 android:layout_height="@dimen/multi_user_avatar_keyguard_size"
                 android:layout_gravity="center"
                 android:scaleType="centerInside"/>
         </com.android.systemui.statusbar.phone.MultiUserSwitch>
-    </LinearLayout>
+
+        <FrameLayout android:id="@+id/system_icons_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_toRightOf="@id/keyguard_carrier_text"
+            android:layout_toLeftOf="@id/multi_user_switch"
+            android:gravity="center_vertical|end"
+            android:paddingEnd="@dimen/system_icons_keyguard_padding_end" >
+            <include layout="@layout/system_icons" />
+        </FrameLayout>
+
+    </RelativeLayout>
 
     <Space
         android:id="@+id/cutout_space_view"
@@ -61,20 +78,5 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:visibility="gone" />
-
-    <com.android.keyguard.CarrierText
-        android:id="@+id/keyguard_carrier_text"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginStart="@dimen/keyguard_carrier_text_margin"
-        android:layout_toStartOf="@id/system_icons_container"
-        android:gravity="center_vertical"
-        android:ellipsize="marquee"
-        android:textDirection="locale"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="?attr/wallpaperTextColorSecondary"
-        android:singleLine="true"
-        systemui:showMissingSim="true"
-        systemui:showAirplaneMode="true" />
 
 </com.android.systemui.statusbar.phone.KeyguardStatusBarView>
