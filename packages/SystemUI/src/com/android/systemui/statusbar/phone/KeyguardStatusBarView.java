@@ -190,8 +190,8 @@ public class KeyguardStatusBarView extends RelativeLayout
     }
 
     private void updateSystemIconsLayoutParams() {
-        LayoutParams lp =
-                (LayoutParams) mSystemIconsContainer.getLayoutParams();
+        LinearLayout.LayoutParams lp =
+                (LinearLayout.LayoutParams) mSystemIconsContainer.getLayoutParams();
         // If the avatar icon is gone, we need to have some end margin to display the system icons
         // correctly.
         int baseMarginEnd = mMultiUserSwitch.getVisibility() == View.GONE
@@ -244,15 +244,15 @@ public class KeyguardStatusBarView extends RelativeLayout
             mCutoutSpace.setVisibility(View.GONE);
         }
 
-        //RelativeLayout.LayoutParams lp = (LayoutParams) mCarrierLabel.getLayoutParams();
-        //lp.addRule(RelativeLayout.START_OF, R.id.status_icon_area);
+        RelativeLayout.LayoutParams lp = (LayoutParams) mCarrierLabel.getLayoutParams();
+        lp.addRule(RelativeLayout.START_OF, R.id.status_icon_area);
 
-        //lp = (LayoutParams) mStatusIconArea.getLayoutParams();
-        //lp.removeRule(RelativeLayout.RIGHT_OF);
-        //lp.width = LayoutParams.MATCH_PARENT;
+        lp = (LayoutParams) mStatusIconArea.getLayoutParams();
+        lp.removeRule(RelativeLayout.RIGHT_OF);
+        lp.width = LayoutParams.WRAP_CONTENT;
 
-        LayoutParams llp =
-                (LayoutParams) mSystemIconsContainer.getLayoutParams();
+        LinearLayout.LayoutParams llp =
+                (LinearLayout.LayoutParams) mSystemIconsContainer.getLayoutParams();
         llp.setMarginStart(getResources().getDimensionPixelSize(
                 R.dimen.system_icons_super_container_margin_start));
         return true;
@@ -286,8 +286,8 @@ public class KeyguardStatusBarView extends RelativeLayout
         lp.addRule(RelativeLayout.RIGHT_OF, R.id.cutout_space_view);
         lp.width = LayoutParams.MATCH_PARENT;
 
-        LayoutParams llp =
-                (LayoutParams) mSystemIconsContainer.getLayoutParams();
+        LinearLayout.LayoutParams llp =
+                (LinearLayout.LayoutParams) mSystemIconsContainer.getLayoutParams();
         llp.setMarginStart(0);
         return true;
     }

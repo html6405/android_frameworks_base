@@ -272,7 +272,7 @@ public class StatusIconContainer extends AlphaOptimizedLinearLayout {
         }
 
         // Stole this from NotificationIconContainer. Not optimal but keeps the layout logic clean
-        if (!isLayoutRtl()) {
+        if (isLayoutRtl()) {
             for (int i = 0; i < childCount; i++) {
                 View child = getChildAt(i);
                 StatusIconState state = getViewStateFromChild(child);
