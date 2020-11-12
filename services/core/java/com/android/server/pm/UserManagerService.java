@@ -1775,9 +1775,6 @@ public class UserManagerService extends IUserManager.Stub {
     @Override
     public boolean canAddMoreManagedProfiles(int userId, boolean allowedToRemoveOne) {
         checkManageUsersPermission("check if more managed profiles can be added.");
-        if (ActivityManager.isLowRamDeviceStatic()) {
-            return false;
-        }
         if (!mContext.getPackageManager().hasSystemFeature(
                 PackageManager.FEATURE_MANAGED_USERS)) {
             return false;
