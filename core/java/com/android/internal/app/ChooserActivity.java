@@ -1026,11 +1026,6 @@ public class ChooserActivity extends ResolverActivity {
 
         @Override
         public void onListRebuilt() {
-            // don't support direct share on low ram devices
-            if (ActivityManager.isLowRamDeviceStatic()) {
-                return;
-            }
-
             if (mServiceTargets != null) {
                 if (getDisplayInfoCount() == 0) {
                     // b/109676071: When packages change, onListRebuilt() is called before
