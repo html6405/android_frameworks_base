@@ -223,6 +223,7 @@ public class InputManagerService extends IInputManager.Stub
             InputChannel fromChannel, InputChannel toChannel);
     private static native void nativeSetPointerSpeed(long ptr, int speed);
     private static native void nativeSetShowTouches(long ptr, boolean enabled);
+    private static native void nativeSetStylusIconEnabled(long ptr, boolean enabled);
     private static native void nativeSetVolumeKeysRotation(long ptr, int mode);
     private static native void nativeSetInteractive(long ptr, boolean interactive);
     private static native void nativeReloadCalibration(long ptr);
@@ -350,6 +351,7 @@ public class InputManagerService extends IInputManager.Stub
         registerPointerSpeedSettingObserver();
         registerShowTouchesSettingObserver();
         registerAccessibilityLargePointerSettingObserver();
+        registerStylusIconEnabledSettingObserver();
         registerVolumeKeysRotationSettingObserver();
 
         mContext.registerReceiver(new BroadcastReceiver() {
@@ -358,6 +360,7 @@ public class InputManagerService extends IInputManager.Stub
                 updatePointerSpeedFromSettings();
                 updateShowTouchesFromSettings();
                 updateAccessibilityLargePointerFromSettings();
+                updateStylusIconEnabledFromSettings();
                 updateVolumeKeysRotationFromSettings();
             }
         }, new IntentFilter(Intent.ACTION_USER_SWITCHED), null, mHandler);
@@ -365,6 +368,7 @@ public class InputManagerService extends IInputManager.Stub
         updatePointerSpeedFromSettings();
         updateShowTouchesFromSettings();
         updateAccessibilityLargePointerFromSettings();
+        updateStylusIconEnabledFromSettings();
         updateVolumeKeysRotationFromSettings();
     }
 
@@ -1631,6 +1635,32 @@ public class InputManagerService extends IInputManager.Stub
             result = Settings.System.getIntForUser(mContext.getContentResolver(),
                     Settings.System.SHOW_TOUCHES, UserHandle.USER_CURRENT);
         } catch (SettingNotFoundException snfe) {
+        }
+        return result;
+    }
+
+    public void updateStylusIconEnabledFromSettings() {
+        int enabled = getStylusIconEnabled(0);
+        nativeSetStylusIconEnabled(mPtr, enabled != 0);
+    }
+
+    public void registerStylusIconEnabledSettingObserver() {
+        mContext.getContentResolver().registerContentObserver(
+                LineageSettings.System.getUriFor(LineageSettings.System.STYLUS_ICON_ENABLED), false,
+                new ContentObserver(mHandler) {
+                    @Override
+                    public void onChange(boolean selfChange) {
+                        updateStylusIconEnabledFromSettings();
+                    }
+                });
+    }
+
+    private int getStylusIconEnabled(int defaultValue) {
+        int result = defaultValue;
+        try {
+            result = LineageSettings.System.getInt(mContext.getContentResolver(),
+                    LineageSettings.System.STYLUS_ICON_ENABLED);
+        } catch (LineageSettings.LineageSettingNotFoundException snfe) {
         }
         return result;
     }
