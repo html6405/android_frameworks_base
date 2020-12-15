@@ -350,6 +350,7 @@ public class InputManagerService extends IInputManager.Stub
         registerPointerSpeedSettingObserver();
         registerShowTouchesSettingObserver();
         registerAccessibilityLargePointerSettingObserver();
+        registerStylusIconEnabledSettingObserver();
         registerVolumeKeysRotationSettingObserver();
 
         mContext.registerReceiver(new BroadcastReceiver() {
@@ -358,6 +359,7 @@ public class InputManagerService extends IInputManager.Stub
                 updatePointerSpeedFromSettings();
                 updateShowTouchesFromSettings();
                 updateAccessibilityLargePointerFromSettings();
+                updateStylusIconEnabledFromSettings();
                 updateVolumeKeysRotationFromSettings();
             }
         }, new IntentFilter(Intent.ACTION_USER_SWITCHED), null, mHandler);
@@ -365,6 +367,7 @@ public class InputManagerService extends IInputManager.Stub
         updatePointerSpeedFromSettings();
         updateShowTouchesFromSettings();
         updateAccessibilityLargePointerFromSettings();
+        updateStylusIconEnabledFromSettings();
         updateVolumeKeysRotationFromSettings();
     }
 
@@ -1634,6 +1637,33 @@ public class InputManagerService extends IInputManager.Stub
         }
         return result;
     }
+
+    public void updateStylusIconEnabledFromSettings() {
+        int enabled = getStylusIconEnabled(0);
+        nativeSetPointerCapture(mPtr, enabled != 0);
+    }
+
+    public void registerStylusIconEnabledSettingObserver() {
+        mContext.getContentResolver().registerContentObserver(
+                LineageSettings.System.getUriFor(LineageSettings.System.STYLUS_ICON_ENABLED), false,
+                new ContentObserver(mHandler) {
+                    @Override
+                    public void onChange(boolean selfChange) {
+                        updateStylusIconEnabledFromSettings();
+                    }
+                }, UserHandle.USER_ALL);
+            }
+
+     private int getStylusIconEnabled(int defaultValue) {
+        int result = defaultValue;
+            try {
+                result = LineageSettings.System.getInt(mContext.getContentResolver(),
+                        LineageSettings.System.STYLUS_ICON_ENABLED);
+                }
+            catch (LineageSettings.LineageSettingNotFoundException snfe) {
+                    }
+                return result;
+            }
 
     public void updateVolumeKeysRotationFromSettings() {
         int mode = getVolumeKeysRotationSetting(0);
