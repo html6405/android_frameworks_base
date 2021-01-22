@@ -321,6 +321,7 @@ public final class BasePermission {
         if (bp == null) {
             bp = new BasePermission(p.info.name, p.info.packageName, TYPE_NORMAL);
         }
+        boolean wasNonRuntime = !bp.isRuntime();
         StringBuilder r = null;
         if (bp.perm == null) {
             if (bp.sourcePackageName == null
@@ -363,6 +364,11 @@ public final class BasePermission {
         }
         if (bp.perm == p) {
             bp.protectionLevel = p.info.protectionLevel;
+        }
+        if (bp.isRuntime() && (ownerChanged || wasNonRuntime)) {
+            // If this is a runtime permission and the owner has changed, or this was a normal
+            // permission, then permission state should be cleaned up
+            bp.mPermissionDefinitionChanged = true;
         }
         if (PackageManagerService.DEBUG_PACKAGE_SCANNING && r != null) {
             Log.d(TAG, "  Permissions: " + r);
