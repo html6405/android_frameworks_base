@@ -96,4 +96,27 @@ public class SlicePermissionActivity extends Activity implements OnClickListener
     public void onDismiss(DialogInterface dialog) {
         finish();
     }
+
+    private void verifyCallingPkg() {
+        final String providerPkg = getIntent().getStringExtra("provider_pkg");
+        if (providerPkg == null || mProviderPkg.equals(providerPkg)) return;
+        final String callingPkg = getCallingPkg();
+        EventLog.writeEvent(0x534e4554, "159145361", getUid(callingPkg));
+    }
+
+    @Nullable
+    private String getCallingPkg() {
+        final Uri referrer = getReferrer();
+        if (referrer == null) return null;
+        return referrer.getHost();
+    }
+
+    private int getUid(@Nullable final String pkg) {
+        if (pkg == null) return -1;
+        try {
+            return getPackageManager().getApplicationInfo(pkg, 0).uid;
+        } catch (NameNotFoundException e) {
+        }
+        return -1;
+    }
 }
