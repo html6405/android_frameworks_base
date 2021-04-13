@@ -25,8 +25,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.content.ComponentName;
-import android.content.pm.PackageManager;
 import android.hardware.biometrics.fingerprint.V2_1.IBiometricsFingerprint;
 import android.hardware.biometrics.BiometricPrompt;
 import android.hardware.biometrics.IBiometricPromptReceiver;
@@ -46,9 +44,9 @@ import com.android.internal.statusbar.IStatusBarService;
 
 import lineageos.app.LineageContextConstants;
 
-import vendor.lineage.biometrics.fingerprint.inscreen.V1_0.IFingerprintInscreen;
-
 import java.util.List;
+
+import vendor.lineage.biometrics.fingerprint.inscreen.V1_0.IFingerprintInscreen;
 
 /**
  * A class to keep track of the authentication state for a given client.
