@@ -54,7 +54,7 @@ import com.android.server.LocalServices;
 import com.android.server.am.BatteryStatsService;
 import com.android.server.lights.LightsManager;
 import com.android.server.policy.WindowManagerPolicy;
-
+import com.android.server.display;
 import java.io.PrintWriter;
 
 /**
@@ -481,8 +481,12 @@ final class DisplayPowerController implements AutomaticBrightnessController.Call
                 mUseSoftwareAutoBrightnessConfig = false;
             }
         }
-
-        mColorFadeEnabled = !ActivityManager.isLowRamDeviceStatic();
+        if (!DESTROY_SURFACE_AFTER_DETACH) {
+            mColorFadeEnabled = !ActivityManager.isLowRamDeviceStatic();
+        }
+        else {
+            mColorFadeEnabled = false;
+        }
         mColorFadeFadesConfig = resources.getBoolean(
                 com.android.internal.R.bool.config_animateScreenLights);
 
