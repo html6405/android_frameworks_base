@@ -31,11 +31,11 @@ import android.app.ActivityThread;
 import android.app.AppOpsManager;
 import android.compat.annotation.UnsupportedAppUsage;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.ImageFormat;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
-import android.hardware.camera2.CameraManager;
 import android.media.AudioAttributes;
 import android.media.IAudioService;
 import android.os.Build;
@@ -46,11 +46,7 @@ import android.os.Message;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.ServiceManager;
-import android.renderscript.Allocation;
-import android.renderscript.Element;
-import android.renderscript.RSIllegalArgumentException;
-import android.renderscript.RenderScript;
-import android.renderscript.Type;
+import android.os.SystemProperties;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Surface;
@@ -63,6 +59,7 @@ import com.android.internal.app.IAppOpsService;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -250,10 +247,14 @@ public class Camera {
     public static final int CAMERA_HAL_API_VERSION_1_0 = 0x100;
 
     /**
-     * Camera HAL device API version 3.0
-     * @hide
+     * A constant meaning the normal camera connect/open will be used.
      */
-    public static final int CAMERA_HAL_API_VERSION_3_0 = 0x300;
+    private static final int CAMERA_HAL_API_VERSION_NORMAL_CONNECT = -2;
+
+    /**
+     * Used to indicate HAL version un-specified.
+     */
+    private static final int CAMERA_HAL_API_VERSION_UNSPECIFIED = -1;
 
     /**
      * Hardware face detection. It does not use much CPU.
@@ -264,6 +265,33 @@ public class Camera {
      * Software face detection. It uses some CPU.
      */
     private static final int CAMERA_FACE_DETECTION_SW = 1;
+
+    /**
+     * @hide
+     */
+    public static boolean shouldExposeAuxCamera() {
+        /**
+         * Force to expose only two cameras
+         * if the package name does not falls in this bucket
+         */
+        String packageName = ActivityThread.currentOpPackageName();
+        if (packageName == null)
+            return true;
+        List<String> packageList = new ArrayList<>(Arrays.asList(
+                SystemProperties.get("vendor.camera.aux.packagelist", ",").split(",")));
+        List<String> packageExcludelist = new ArrayList<>(Arrays.asList(
+                SystemProperties.get("vendor.camera.aux.packageexcludelist", ",").split(",")));
+
+        // Append packages from lineage-sdk resources
+        Resources res = ActivityThread.currentApplication().getResources();
+        packageList.addAll(Arrays.asList(res.getStringArray(
+                org.lineageos.platform.internal.R.array.config_cameraAuxPackageAllowList)));
+        packageExcludelist.addAll(Arrays.asList(res.getStringArray(
+                org.lineageos.platform.internal.R.array.config_cameraAuxPackageExcludeList)));
+
+        return (packageList.isEmpty() || packageList.contains(packageName)) &&
+                !packageExcludelist.contains(packageName);
+    }
 
     /**
      * Returns the number of physical cameras available on this device.
@@ -280,7 +308,20 @@ public class Camera {
      * @return total number of accessible camera devices, or 0 if there are no
      *   cameras or an error was encountered enumerating them.
      */
-    public native static int getNumberOfCameras();
+    public static int getNumberOfCameras() {
+        int numberOfCameras = _getNumberOfCameras();
+        if (!shouldExposeAuxCamera() && numberOfCameras > 2) {
+            numberOfCameras = 2;
+        }
+        return numberOfCameras;
+    }
+
+    /**
+     * Returns the number of physical cameras available on this device.
+     *
+     * @hide
+     */
+    public native static int _getNumberOfCameras();
 
     /**
      * Returns the information about a particular camera.
@@ -291,10 +332,10 @@ public class Camera {
      *    low-level failure).
      */
     public static void getCameraInfo(int cameraId, CameraInfo cameraInfo) {
-        boolean overrideToPortrait = CameraManager.shouldOverrideToPortrait(
-                ActivityThread.currentApplication().getApplicationContext());
-
-        _getCameraInfo(cameraId, overrideToPortrait, cameraInfo);
+        if (cameraId >= getNumberOfCameras()) {
+            throw new RuntimeException("Unknown camera ID");
+        }
+        _getCameraInfo(cameraId, cameraInfo);
         IBinder b = ServiceManager.getService(Context.AUDIO_SERVICE);
         IAudioService audioService = IAudioService.Stub.asInterface(b);
         try {
@@ -307,8 +348,7 @@ public class Camera {
             Log.e(TAG, "Audio service is unavailable for queries");
         }
     }
-    private native static void _getCameraInfo(int cameraId, boolean overrideToPortrait,
-            CameraInfo cameraInfo);
+    private native static void _getCameraInfo(int cameraId, CameraInfo cameraInfo);
 
     /**
      * Information about a camera
@@ -428,7 +468,7 @@ public class Camera {
      * Creates a new Camera object to access a particular hardware camera with
      * given hal API version. If the same camera is opened by other applications
      * or the hal API version is not supported by this device, this will throw a
-     * RuntimeException. As of Android 12, HAL version 1 is no longer supported.
+     * RuntimeException.
      * <p>
      * You must call {@link #release()} when you are done using the camera,
      * otherwise it will remain locked and be unavailable to other applications.
@@ -464,14 +504,49 @@ public class Camera {
      */
     @UnsupportedAppUsage
     public static Camera openLegacy(int cameraId, int halVersion) {
-        if (halVersion < CAMERA_HAL_API_VERSION_3_0) {
-            throw new IllegalArgumentException("Unsupported HAL version " + halVersion);
+        if (halVersion < CAMERA_HAL_API_VERSION_1_0) {
+            throw new IllegalArgumentException("Invalid HAL version " + halVersion);
         }
 
-        return new Camera(cameraId);
+        return new Camera(cameraId, halVersion);
     }
 
-    private int cameraInit(int cameraId) {
+    /**
+     * Create a legacy camera object.
+     *
+     * @param cameraId The hardware camera to access, between 0 and
+     * {@link #getNumberOfCameras()}-1.
+     * @param halVersion The HAL API version this camera device to be opened as.
+     */
+    private Camera(int cameraId, int halVersion) {
+        int err = cameraInitVersion(cameraId, halVersion);
+        if (checkInitErrors(err)) {
+            if (err == -EACCES) {
+                throw new RuntimeException("Fail to connect to camera service");
+            } else if (err == -ENODEV) {
+                throw new RuntimeException("Camera initialization failed");
+            } else if (err == -ENOSYS) {
+                throw new RuntimeException("Camera initialization failed because some methods"
+                        + " are not implemented");
+            } else if (err == -EOPNOTSUPP) {
+                throw new RuntimeException("Camera initialization failed because the hal"
+                        + " version is not supported by this device");
+            } else if (err == -EINVAL) {
+                throw new RuntimeException("Camera initialization failed because the input"
+                        + " arugments are invalid");
+            } else if (err == -EBUSY) {
+                throw new RuntimeException("Camera initialization failed because the camera"
+                        + " device was already opened");
+            } else if (err == -EUSERS) {
+                throw new RuntimeException("Camera initialization failed because the max"
+                        + " number of camera devices were already opened");
+            }
+            // Should never hit this.
+            throw new RuntimeException("Unknown camera error");
+        }
+    }
+
+    private int cameraInitVersion(int cameraId, int halVersion) {
         mShutterCallback = null;
         mRawImageCallback = null;
         mJpegCallback = null;
@@ -489,15 +564,38 @@ public class Camera {
             mEventHandler = null;
         }
 
-        boolean overrideToPortrait = CameraManager.shouldOverrideToPortrait(
-                ActivityThread.currentApplication().getApplicationContext());
-        return native_setup(new WeakReference<Camera>(this), cameraId,
-                ActivityThread.currentOpPackageName(), overrideToPortrait);
+        return native_setup(new WeakReference<Camera>(this), cameraId, halVersion,
+                ActivityThread.currentOpPackageName());
+    }
+
+    private int cameraInitNormal(int cameraId) {
+        return cameraInitVersion(cameraId, CAMERA_HAL_API_VERSION_NORMAL_CONNECT);
+    }
+
+    /**
+     * Connect to the camera service using #connectLegacy
+     *
+     * <p>
+     * This acts the same as normal except that it will return
+     * the detailed error code if open fails instead of
+     * converting everything into {@code NO_INIT}.</p>
+     *
+     * <p>Intended to use by the camera2 shim only, do <i>not</i> use this for other code.</p>
+     *
+     * @return a detailed errno error code, or {@code NO_ERROR} on success
+     *
+     * @hide
+     */
+    public int cameraInitUnspecified(int cameraId) {
+        return cameraInitVersion(cameraId, CAMERA_HAL_API_VERSION_UNSPECIFIED);
     }
 
     /** used by Camera#open, Camera#open(int) */
     Camera(int cameraId) {
-        int err = cameraInit(cameraId);
+        if (cameraId >= getNumberOfCameras()) {
+            throw new RuntimeException("Unknown camera ID");
+        }
+        int err = cameraInitNormal(cameraId);
         if (checkInitErrors(err)) {
             if (err == -EACCES) {
                 throw new RuntimeException("Fail to connect to camera service");
@@ -562,8 +660,8 @@ public class Camera {
     }
 
     @UnsupportedAppUsage
-    private native int native_setup(Object cameraThis, int cameraId, String packageName,
-            boolean overrideToPortrait);
+    private native final int native_setup(Object camera_this, int cameraId, int halVersion,
+                                           String packageName);
 
     private native final void native_release();
 
@@ -1570,7 +1668,7 @@ public class Camera {
         }
 
         @Override
-        public void opChanged(int op, int uid, String packageName, String persistentDeviceId) {
+        public void opChanged(int op, int uid, String packageName) {
             if (op == AppOpsManager.OP_PLAY_AUDIO) {
                 final Camera camera = mWeakCamera.get();
                 if (camera != null) {
