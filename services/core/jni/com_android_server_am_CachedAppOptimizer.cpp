@@ -574,6 +574,11 @@ static jint com_android_server_am_CachedAppOptimizer_getBinderFreezeInfo(JNIEnv 
     return retVal;
 }
 
+static jstring com_android_server_am_CachedAppOptimizer_getFreezerCheckPath(JNIEnv* env,
+                                                                            jobject clazz) {
+    return env->NewStringUTF(CGROUP_FREEZE_PATH);
+}
+
 static jboolean com_android_server_am_CachedAppOptimizer_isFreezerProfileValid(JNIEnv* env) {
     uid_t uid = getuid();
     pid_t pid = getpid();
