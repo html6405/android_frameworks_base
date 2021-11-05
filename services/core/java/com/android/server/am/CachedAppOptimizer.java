@@ -1106,6 +1106,10 @@ public final class CachedAppOptimizer {
                 Slog.d(TAG_AM, "Checking binder freezer ioctl");
                 getBinderFreezeInfo(Process.myPid());
                 supported = true;
+                // This is a workaround after reverting the cgroup v2 uid/pid hierarchy due to
+                // http://b/179006802.
+                // TODO: remove once the uid/pid hierarchy is restored
+                enableFreezerInternal(true);
             } else {
                 Slog.e(TAG_AM, "Unexpected value in cgroup.freeze");
             }
