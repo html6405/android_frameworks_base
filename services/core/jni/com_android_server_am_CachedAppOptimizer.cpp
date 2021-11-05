@@ -565,11 +565,6 @@ static jint com_android_server_am_CachedAppOptimizer_getBinderFreezeInfo(JNIEnv 
     return retVal;
 }
 
-static jstring com_android_server_am_CachedAppOptimizer_getFreezerCheckPath(JNIEnv* env,
-                                                                            jobject clazz) {
-    return env->NewStringUTF(CGROUP_FREEZE_PATH);
-}
-
 static jboolean com_android_server_am_CachedAppOptimizer_isFreezerProfileValid(JNIEnv* env) {
     int uid = getuid();
     int pid = getpid();
@@ -596,8 +591,6 @@ static const JNINativeMethod sMethods[] = {
         {"freezeBinder", "(IZI)I", (void*)com_android_server_am_CachedAppOptimizer_freezeBinder},
         {"getBinderFreezeInfo", "(I)I",
          (void*)com_android_server_am_CachedAppOptimizer_getBinderFreezeInfo},
-        {"getFreezerCheckPath", "()Ljava/lang/String;",
-         (void*)com_android_server_am_CachedAppOptimizer_getFreezerCheckPath},
         {"isFreezerProfileValid", "()Z",
          (void*)com_android_server_am_CachedAppOptimizer_isFreezerProfileValid}};
 
