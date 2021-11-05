@@ -1098,8 +1098,8 @@ public final class CachedAppOptimizer {
         FileReader fr = null;
 
         try {
-            fr = new FileReader("/dev/freezer/frozen/freezer.killable");
-            int i = fr.read();
+            fr = new FileReader("/sys/fs/cgroup/uid_0/cgroup.freeze");
+            char state = (char) fr.read();
 
             if ((char) i == '1') {
                 // Also check freezer binder ioctl
