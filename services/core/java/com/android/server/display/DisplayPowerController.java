@@ -591,6 +591,9 @@ final class DisplayPowerController implements AutomaticBrightnessController.Call
         mAutomaticBrightnessStrategy =
                 mDisplayBrightnessController.getAutomaticBrightnessStrategy();
 
+        mColorFadeEnabled = resources.getBoolean(
+                com.android.internal.R.bool.config_colorFade_enabled) && !ActivityManager.isLowRamDeviceStatic();
+
         DisplayWhiteBalanceSettings displayWhiteBalanceSettings = null;
         DisplayWhiteBalanceController displayWhiteBalanceController = null;
         if (mDisplayId == Display.DEFAULT_DISPLAY) {
@@ -636,9 +639,6 @@ final class DisplayPowerController implements AutomaticBrightnessController.Call
 
         setUpAutoBrightness(context, handler);
 
-        mColorFadeEnabled = mInjector.isColorFadeEnabled()
-                && !resources.getBoolean(
-                  com.android.internal.R.bool.config_displayColorFadeDisabled);
         mColorFadeFadesConfig = resources.getBoolean(
                 R.bool.config_animateScreenLights);
 
