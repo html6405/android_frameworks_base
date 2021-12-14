@@ -926,7 +926,10 @@ public final class SensorPrivacyService extends SystemService {
             if (mContext.checkCallingOrSelfPermission(permission) == PERMISSION_GRANTED) {
                 return;
             }
-            throw new SecurityException(message);
+
+            String message = "Observing sensor privacy changes requires the following permission: "
+                    + android.Manifest.permission.OBSERVE_SENSOR_PRIVACY;
+            Log.e(TAG, "IGNORED: Exception: ", new SecurityException(message));
         }
 
         /**
