@@ -254,7 +254,9 @@ public class ActivityTaskManager {
         // supported regardless of device memory characteristics.
         boolean isWatch = context.getPackageManager().hasSystemFeature(
                 PackageManager.FEATURE_WATCH);
-        return (!ActivityManager.isLowRamDeviceStatic() || isWatch)
+        boolean enableForLowRam = true;
+
+        return (enableForLowRam || isWatch)
                 && Resources.getSystem().getBoolean(
                 com.android.internal.R.bool.config_supportsMultiWindow);
     }
