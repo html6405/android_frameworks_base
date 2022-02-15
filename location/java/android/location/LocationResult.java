@@ -167,10 +167,10 @@ public final class LocationResult implements Parcelable {
                     location.removeSpeed();
                 }
             } else {
-                if (!location.isComplete()) {
+               /* if (!location.isComplete()) {
                     throw new IllegalArgumentException(
                             "incomplete location at index " + i + ": " + mLocations);
-                }
+                }*/
                 if (location.getElapsedRealtimeNanos() < prevElapsedRealtimeNs) {
                     throw new IllegalArgumentException(
                             "incorrectly ordered location at index " + i + ": " + mLocations);
