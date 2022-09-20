@@ -58,8 +58,7 @@ public class CaptureResultExtras implements Parcelable {
                                int partialResultCount, int errorStreamId,
                                String errorPhysicalCameraId, long lastCompletedRegularFrameNumber,
                                long lastCompletedReprocessFrameNumber,
-                               long lastCompletedZslFrameNumber, boolean hasReadoutTimestamp,
-                               long readoutTimestamp) {
+                               long lastCompletedZslFrameNumber) {
         this.requestId = requestId;
         this.subsequenceId = subsequenceId;
         this.afTriggerId = afTriggerId;
