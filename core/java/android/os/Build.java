@@ -1261,7 +1261,7 @@ public class Build {
                         + String.valueOf(result));
             }
 
-            return result == 0;
+            return true;
         }
 
         final String system = SystemProperties.get("ro.system.build.fingerprint");
