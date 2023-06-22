@@ -556,8 +556,7 @@ static void android_hardware_Camera_getCameraInfo(JNIEnv *env, jobject thiz, jin
 // connect to camera service
 static jint android_hardware_Camera_native_setup(JNIEnv *env, jobject thiz, jobject weak_this,
                                                  jint cameraId, jstring clientPackageName,
-                                                 jboolean overrideToPortrait,
-                                                 jboolean forceSlowJpegMode) {
+                                                 jboolean overrideToPortrait) {
     // Convert jstring to String16
     const char16_t *rawClientName = reinterpret_cast<const char16_t*>(
         env->GetStringChars(clientPackageName, NULL));
@@ -569,7 +568,7 @@ static jint android_hardware_Camera_native_setup(JNIEnv *env, jobject thiz, jobj
     int targetSdkVersion = android_get_application_target_sdk_version();
     sp<Camera> camera =
             Camera::connect(cameraId, clientName, Camera::USE_CALLING_UID, Camera::USE_CALLING_PID,
-                            targetSdkVersion, overrideToPortrait, forceSlowJpegMode);
+                            targetSdkVersion, overrideToPortrait);
     if (camera == NULL) {
         return -EACCES;
     }
@@ -1055,7 +1054,7 @@ static const JNINativeMethod camMethods[] = {
         {"_getNumberOfCameras", "()I", (void *)android_hardware_Camera_getNumberOfCameras},
         {"_getCameraInfo", "(IZLandroid/hardware/Camera$CameraInfo;)V",
          (void *)android_hardware_Camera_getCameraInfo},
-        {"native_setup", "(Ljava/lang/Object;ILjava/lang/String;ZZ)I",
+        {"native_setup", "(Ljava/lang/Object;ILjava/lang/String;Z)I",
          (void *)android_hardware_Camera_native_setup},
         {"native_release", "()V", (void *)android_hardware_Camera_release},
         {"setPreviewSurface", "(Landroid/view/Surface;)V",
