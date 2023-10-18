@@ -1968,6 +1968,8 @@ static void SpecializeCommon(JNIEnv* env, uid_t uid, gid_t gid, jintArray gids, 
     if (getuid() == 0) {
         const int rc = createProcessGroup(uid, getpid());
         if (rc != 0) {
+                ALOGE("createProcessGroup(%d, %d) failed: %s", uid, /* pid= */ 0, strerror(-rc));
+#if 0
             if (rc == -ESRCH) {
                 // If process is dead, treat this as a non-fatal error
                 ALOGE("createProcessGroup(%d, %d) failed: %s", uid, /* pid= */ 0, strerror(-rc));
@@ -1977,6 +1979,7 @@ static void SpecializeCommon(JNIEnv* env, uid_t uid, gid_t gid, jintArray gids, 
                                      : CREATE_ERROR("createProcessGroup(%d, %d) failed: %s", uid,
                                                     /* pid= */ 0, strerror(-rc)));
             }
+#endif
         }
     }
 
