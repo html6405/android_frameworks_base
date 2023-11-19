@@ -53,7 +53,6 @@ import android.hardware.camera2.params.DynamicRangeProfiles;
 import android.hardware.camera2.params.ExtensionSessionConfiguration;
 import android.hardware.camera2.params.OutputConfiguration;
 import android.hardware.camera2.params.SessionConfiguration;
-import android.hardware.camera2.utils.ExtensionSessionStatsAggregator;
 import android.hardware.camera2.utils.SurfaceUtils;
 import android.media.Image;
 import android.media.ImageReader;
@@ -98,7 +97,6 @@ public final class CameraAdvancedExtensionSessionImpl extends CameraExtensionSes
     private CameraCaptureSession mCaptureSession = null;
     private ISessionProcessorImpl mSessionProcessor = null;
     private final InitializeSessionHandler mInitializeHandler;
-    private final ExtensionSessionStatsAggregator mStatsAggregator;
 
     private boolean mInitialized;
     private boolean mSessionClosed;
@@ -207,9 +205,6 @@ public final class CameraAdvancedExtensionSessionImpl extends CameraExtensionSes
                 burstCaptureSurface, postviewSurface, config.getStateCallback(),
                 config.getExecutor(), sessionId, token);
 
-        ret.mStatsAggregator.setClientName(ctx.getOpPackageName());
-        ret.mStatsAggregator.setExtensionType(config.getExtension());
-
         ret.initialize();
 
         return ret;
@@ -242,9 +237,6 @@ public final class CameraAdvancedExtensionSessionImpl extends CameraExtensionSes
         mSessionId = sessionId;
         mToken = token;
         mInterfaceLock = cameraDevice.mInterfaceLock;
-
-        mStatsAggregator = new ExtensionSessionStatsAggregator(mCameraDevice.getId(),
-                /*isAdvanced=*/true);
     }
 
     /**
@@ -540,22 +532,7 @@ public final class CameraAdvancedExtensionSessionImpl extends CameraExtensionSes
                     Log.e(TAG, "Failed to stop the repeating request or end the session,"
                             + " , extension service does not respond!") ;
                 }
-                // Commit stats before closing the capture session
-                mStatsAggregator.commit(/*isFinal*/true);
                 mCaptureSession.close();
-            }
-        }
-    }
-
-    /**
-     * Called by {@link CameraDeviceImpl} right before the capture session is closed, and before it
-     * calls {@link #release}
-     */
-    public void commitStats() {
-        synchronized (mInterfaceLock) {
-            if (mInitialized) {
-                // Only commit stats if a capture session was initialized
-                mStatsAggregator.commit(/*isFinal*/true);
             }
         }
     }
@@ -649,8 +626,6 @@ public final class CameraAdvancedExtensionSessionImpl extends CameraExtensionSes
         public void onConfigured(@NonNull CameraCaptureSession session) {
             synchronized (mInterfaceLock) {
                 mCaptureSession = session;
-                // Commit basic stats as soon as the capture session is created
-                mStatsAggregator.commit(/*isFinal*/false);
             }
 
             try {
