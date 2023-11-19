@@ -30,6 +30,7 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraExtensionCharacteristics;
 import android.hardware.camera2.CameraExtensionSession;
+import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureFailure;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
@@ -48,7 +49,6 @@ import android.hardware.camera2.params.DynamicRangeProfiles;
 import android.hardware.camera2.params.ExtensionSessionConfiguration;
 import android.hardware.camera2.params.OutputConfiguration;
 import android.hardware.camera2.params.SessionConfiguration;
-import android.hardware.camera2.utils.ExtensionSessionStatsAggregator;
 import android.hardware.camera2.utils.SurfaceUtils;
 import android.media.Image;
 import android.media.ImageReader;
@@ -90,7 +90,6 @@ public final class CameraExtensionSessionImpl extends CameraExtensionSession {
     private final int mSessionId;
     private final Set<CaptureRequest.Key> mSupportedRequestKeys;
     private final Set<CaptureResult.Key> mSupportedResultKeys;
-    private final ExtensionSessionStatsAggregator mStatsAggregator;
     private IBinder mToken = null;
     private boolean mCaptureResultsSupported;
 
@@ -248,9 +247,6 @@ public final class CameraExtensionSessionImpl extends CameraExtensionSession {
                 extensionChars.getAvailableCaptureResultKeys(config.getExtension()),
                 config.getExtension());
 
-        session.mStatsAggregator.setClientName(ctx.getOpPackageName());
-        session.mStatsAggregator.setExtensionType(config.getExtension());
-
         session.initialize();
 
         return session;
@@ -292,10 +288,6 @@ public final class CameraExtensionSessionImpl extends CameraExtensionSession {
         mSupportedResultKeys = resultKeys;
         mCaptureResultsSupported = !resultKeys.isEmpty();
         mInterfaceLock = cameraDevice.mInterfaceLock;
-        mExtensionType = extension;
-
-        mStatsAggregator = new ExtensionSessionStatsAggregator(mCameraDevice.getId(),
-                /*isAdvanced=*/false);
     }
 
     private void initializeRepeatingRequestPipeline() throws RemoteException {
@@ -815,23 +807,7 @@ public final class CameraExtensionSessionImpl extends CameraExtensionSession {
                 }
 
                 mSessionClosed = true;
-                mStatsAggregator.commit(/*isFinal*/true); // Commit stats before closing session
                 mCaptureSession.close();
-            }
-        }
-    }
-
-    /**
-     * Called by {@link CameraDeviceImpl} right before the capture session is closed, and before it
-     * calls {@link #release}
-     *
-     * @hide
-     */
-    public void commitStats() {
-        synchronized (mInterfaceLock) {
-            if (mInitialized) {
-                // Only commit stats if a capture session was initialized
-                mStatsAggregator.commit(/*isFinal*/true);
             }
         }
     }
@@ -999,8 +975,6 @@ public final class CameraExtensionSessionImpl extends CameraExtensionSession {
         public void onConfigured(@NonNull CameraCaptureSession session) {
             synchronized (mInterfaceLock) {
                 mCaptureSession = session;
-                // Commit basic stats as soon as the capture session is created
-                mStatsAggregator.commit(/*isFinal*/false);
                 try {
                     finishPipelineInitialization();
                     CameraExtensionCharacteristics.initializeSession(

@@ -65,7 +65,6 @@ public class CameraSessionStats implements Parcelable {
     private String mUserTag;
     private int mVideoStabilizationMode;
     private int mSessionIndex;
-    private CameraExtensionSessionStats mCameraExtensionSessionStats;
 
     public CameraSessionStats() {
         mFacing = -1;
@@ -83,7 +82,6 @@ public class CameraSessionStats implements Parcelable {
         mStreamStats = new ArrayList<CameraStreamStats>();
         mVideoStabilizationMode = -1;
         mSessionIndex = 0;
-        mCameraExtensionSessionStats = new CameraExtensionSessionStats();
     }
 
     public CameraSessionStats(String cameraId, int facing, int newCameraState,
@@ -103,7 +101,6 @@ public class CameraSessionStats implements Parcelable {
         mInternalReconfigure = internalReconfigure;
         mStreamStats = new ArrayList<CameraStreamStats>();
         mSessionIndex = sessionIdx;
-        mCameraExtensionSessionStats = new CameraExtensionSessionStats();
     }
 
     public static final @android.annotation.NonNull Parcelable.Creator<CameraSessionStats> CREATOR =
@@ -148,7 +145,6 @@ public class CameraSessionStats implements Parcelable {
         dest.writeString(mUserTag);
         dest.writeInt(mVideoStabilizationMode);
         dest.writeInt(mSessionIndex);
-        mCameraExtensionSessionStats.writeToParcel(dest, 0);
     }
 
     public void readFromParcel(Parcel in) {
@@ -174,7 +170,6 @@ public class CameraSessionStats implements Parcelable {
         mUserTag = in.readString();
         mVideoStabilizationMode = in.readInt();
         mSessionIndex = in.readInt();
-        mCameraExtensionSessionStats = CameraExtensionSessionStats.CREATOR.createFromParcel(in);
     }
 
     public String getCameraId() {
@@ -247,9 +242,5 @@ public class CameraSessionStats implements Parcelable {
 
     public int getSessionIndex() {
         return mSessionIndex;
-    }
-
-    public CameraExtensionSessionStats getExtensionSessionStats() {
-        return mCameraExtensionSessionStats;
     }
 }
