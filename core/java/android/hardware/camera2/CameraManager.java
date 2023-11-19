@@ -158,7 +158,20 @@ public final class CameraManager {
                     mContext.checkSelfPermission(CAMERA_OPEN_CLOSE_LISTENER_PERMISSION) ==
                     PackageManager.PERMISSION_GRANTED;
         }
+
+        mFoldStateListener = new FoldStateListener(context);
+        try {
+            context.getSystemService(DeviceStateManager.class).registerCallback(
+                    new HandlerExecutor(CameraManagerGlobal.get().getDeviceStateHandler()),
+                    mFoldStateListener);
+        } catch (IllegalStateException e) {
+            Log.v(TAG, "Failed to register device state listener!");
+            Log.v(TAG, "Device state dependent characteristics updates will not be functional!");
+            mFoldStateListener = null;
+        }
     }
+
+    private FoldStateListener mFoldStateListener;
 
     /**
      * @hide
@@ -219,7 +232,12 @@ public final class CameraManager {
      * @hide
      */
     public void registerDeviceStateListener(@NonNull CameraCharacteristics chars) {
-        CameraManagerGlobal.get().registerDeviceStateListener(chars, mContext);
+        synchronized (mLock) {
+            DeviceStateListener listener = chars.getDeviceStateListener();
+            if (mFoldStateListener != null) {
+                mFoldStateListener.addDeviceStateListener(listener);
+            }
+        }
     }
 
     /**
@@ -1785,7 +1803,6 @@ public final class CameraManager {
 
         private HandlerThread mDeviceStateHandlerThread;
         private Handler mDeviceStateHandler;
-        private FoldStateListener mFoldStateListener;
 
         // Singleton, don't allow construction
         private CameraManagerGlobal() { }
@@ -1800,8 +1817,7 @@ public final class CameraManager {
             return gCameraManager;
         }
 
-        public void registerDeviceStateListener(@NonNull CameraCharacteristics chars,
-                @NonNull Context ctx) {
+        public Handler getDeviceStateHandler() {
             synchronized(mLock) {
                 if (mDeviceStateHandlerThread == null) {
                     mDeviceStateHandlerThread = new HandlerThread(TAG);
@@ -1809,20 +1825,7 @@ public final class CameraManager {
                     mDeviceStateHandler = new Handler(mDeviceStateHandlerThread.getLooper());
                 }
 
-                if (mFoldStateListener == null) {
-                    mFoldStateListener = new FoldStateListener(ctx);
-                    try {
-                        ctx.getSystemService(DeviceStateManager.class).registerCallback(
-                                new HandlerExecutor(mDeviceStateHandler), mFoldStateListener);
-                    } catch (IllegalStateException e) {
-                        Log.v(TAG, "Failed to register device state listener!");
-                        Log.v(TAG, "Device state dependent characteristics updates will not be" +
-                                "functional!");
-                        return;
-                    }
-                }
-
-                mFoldStateListener.addDeviceStateListener(chars.getDeviceStateListener());
+                return mDeviceStateHandler;
             }
         }
 
