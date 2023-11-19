@@ -706,14 +706,6 @@ public class CameraDeviceImpl extends CameraDevice
                         + " input configuration yet.");
             }
 
-            if (mCurrentExtensionSession != null) {
-                mCurrentExtensionSession.commitStats();
-            }
-
-            if (mCurrentAdvancedExtensionSession != null) {
-                mCurrentAdvancedExtensionSession.commitStats();
-            }
-
             // Notify current session that it's going away, before starting camera operations
             // After this call completes, the session is not allowed to call into CameraDeviceImpl
             if (mCurrentSession != null) {
@@ -1422,15 +1414,6 @@ public class CameraDeviceImpl extends CameraDevice
             if (mOfflineSwitchService != null) {
                 mOfflineSwitchService.shutdownNow();
                 mOfflineSwitchService = null;
-            }
-
-            // Let extension sessions commit stats before disconnecting remoteDevice
-            if (mCurrentExtensionSession != null) {
-                mCurrentExtensionSession.commitStats();
-            }
-
-            if (mCurrentAdvancedExtensionSession != null) {
-                mCurrentAdvancedExtensionSession.commitStats();
             }
 
             if (mRemoteDevice != null) {
