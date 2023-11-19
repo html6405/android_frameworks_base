@@ -2583,9 +2583,6 @@ public class CameraDeviceImpl extends CameraDevice
     @Override
     public void createExtensionSession(ExtensionSessionConfiguration extensionConfiguration)
             throws CameraAccessException {
-        HashMap<String, CameraCharacteristics> characteristicsMap = new HashMap<>(
-                mPhysicalIdsToChars);
-        characteristicsMap.put(mCameraId, mCharacteristics);
         boolean initializationFailed = true;
         IBinder token = new Binder(TAG + " : " + mNextSessionId++);
         try {
@@ -2601,11 +2598,11 @@ public class CameraDeviceImpl extends CameraDevice
                         extensionConfiguration.getExtension())) {
                 mCurrentAdvancedExtensionSession =
                         CameraAdvancedExtensionSessionImpl.createCameraAdvancedExtensionSession(
-                                this, characteristicsMap, mContext, extensionConfiguration,
+                                this, mContext, extensionConfiguration,
                                 mNextSessionId, token);
             } else {
                 mCurrentExtensionSession = CameraExtensionSessionImpl.createCameraExtensionSession(
-                        this, characteristicsMap, mContext, extensionConfiguration,
+                        this, mContext, extensionConfiguration,
                         mNextSessionId, token);
             }
             initializationFailed = false;
