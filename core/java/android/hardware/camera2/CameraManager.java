@@ -1858,7 +1858,6 @@ public final class CameraManager {
                         ctx.getSystemService(DeviceStateManager.class).registerCallback(
                                 new HandlerExecutor(mDeviceStateHandler), mFoldStateListener);
                     } catch (IllegalStateException e) {
-                        mFoldStateListener = null;
                         Log.v(TAG, "Failed to register device state listener!");
                         Log.v(TAG, "Device state dependent characteristics updates will not be" +
                                 "functional!");
