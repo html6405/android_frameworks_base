@@ -15,8 +15,6 @@
  */
 package android.hardware.camera2.extension;
 
-import android.hardware.camera2.impl.CameraMetadataNative;
-
 import android.hardware.camera2.extension.ISessionProcessorImpl;
 import android.hardware.camera2.extension.LatencyRange;
 import android.hardware.camera2.extension.Size;
@@ -26,8 +24,8 @@ import android.hardware.camera2.impl.CameraMetadataNative;
 /** @hide */
 interface IAdvancedExtenderImpl
 {
-    boolean isExtensionAvailable(in String cameraId, in Map<String, CameraMetadataNative> charsMap);
-    void init(in String cameraId, in Map<String, CameraMetadataNative> charsMap);
+    boolean isExtensionAvailable(in String cameraId);
+    void init(in String cameraId);
     LatencyRange getEstimatedCaptureLatencyRange(in String cameraId, in Size outputSize,
             int format);
     @nullable List<SizeList> getSupportedPreviewOutputResolutions(in String cameraId);

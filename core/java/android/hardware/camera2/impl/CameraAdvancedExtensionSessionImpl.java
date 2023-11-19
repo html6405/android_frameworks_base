@@ -29,6 +29,7 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraExtensionCharacteristics;
 import android.hardware.camera2.CameraExtensionSession;
+import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureFailure;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
@@ -78,7 +79,7 @@ public final class CameraAdvancedExtensionSessionImpl extends CameraExtensionSes
 
     private final Executor mExecutor;
     private final CameraDevice mCameraDevice;
-    private final Map<String, CameraMetadataNative> mCharacteristicsMap;
+    private final long mExtensionClientId;
     private final Handler mHandler;
     private final HandlerThread mHandlerThread;
     private final CameraExtensionSession.StateCallback mCallbacks;
@@ -113,17 +114,16 @@ public final class CameraAdvancedExtensionSessionImpl extends CameraExtensionSes
     public static CameraAdvancedExtensionSessionImpl createCameraAdvancedExtensionSession(
             @NonNull android.hardware.camera2.impl.CameraDeviceImpl cameraDevice,
             @NonNull Map<String, CameraCharacteristics> characteristicsMap,
-            @NonNull Context ctx, @NonNull ExtensionSessionConfiguration config, int sessionId,
             @NonNull IBinder token)
             throws CameraAccessException, RemoteException {
         String cameraId = cameraDevice.getId();
+        CameraManager manager = ctx.getSystemService(CameraManager.class);
+        CameraCharacteristics chars = manager.getCameraCharacteristics(cameraId);
         CameraExtensionCharacteristics extensionChars = new CameraExtensionCharacteristics(ctx,
-                cameraId, characteristicsMap);
+                cameraId, chars);
 
-        Map<String, CameraMetadataNative> characteristicsMapNative =
-                CameraExtensionUtils.getCharacteristicsMapNative(characteristicsMap);
         if (!CameraExtensionCharacteristics.isExtensionSupported(cameraDevice.getId(),
-                config.getExtension(), characteristicsMapNative)) {
+                config.getExtension(), chars)) {
             throw new UnsupportedOperationException("Unsupported extension type: " +
                     config.getExtension());
         }
@@ -198,10 +198,10 @@ public final class CameraAdvancedExtensionSessionImpl extends CameraExtensionSes
 
         IAdvancedExtenderImpl extender = CameraExtensionCharacteristics.initializeAdvancedExtension(
                 config.getExtension());
-        extender.init(cameraId, characteristicsMapNative);
+        extender.init(cameraId);
 
         CameraAdvancedExtensionSessionImpl ret = new CameraAdvancedExtensionSessionImpl(ctx,
-                extender, cameraDevice, characteristicsMapNative, repeatingRequestSurface,
+                extender, cameraDevice, repeatingRequestSurface,
                 burstCaptureSurface, postviewSurface, config.getStateCallback(),
                 config.getExecutor(), sessionId, token);
 
@@ -212,17 +212,15 @@ public final class CameraAdvancedExtensionSessionImpl extends CameraExtensionSes
 
     private CameraAdvancedExtensionSessionImpl(Context ctx,
             @NonNull IAdvancedExtenderImpl extender,
-            @NonNull CameraDeviceImpl cameraDevice,
-            Map<String, CameraMetadataNative> characteristicsMap,
+            @NonNull android.hardware.camera2.impl.CameraDeviceImpl cameraDevice,
             @Nullable Surface repeatingRequestSurface, @Nullable Surface burstCaptureSurface,
             @Nullable Surface postviewSurface,
-            @NonNull StateCallback callback, @NonNull Executor executor,
+            @NonNull CameraExtensionSession.StateCallback callback, @NonNull Executor executor,
             int sessionId,
             @NonNull IBinder token) {
         mContext = ctx;
         mAdvancedExtender = extender;
         mCameraDevice = cameraDevice;
-        mCharacteristicsMap = characteristicsMap;
         mCallbacks = callback;
         mExecutor = executor;
         mClientRepeatingRequestSurface = repeatingRequestSurface;
@@ -254,7 +252,7 @@ public final class CameraAdvancedExtensionSessionImpl extends CameraExtensionSes
         mSessionProcessor = mAdvancedExtender.getSessionProcessor();
         CameraSessionConfig sessionConfig = mSessionProcessor.initSession(mToken,
                 mCameraDevice.getId(),
-                mCharacteristicsMap, previewSurface, captureSurface, postviewSurface);
+                previewSurface, captureSurface, postviewSurface);
         List<CameraOutputConfig> outputConfigs = sessionConfig.outputConfigs;
         ArrayList<OutputConfiguration> outputList = new ArrayList<>();
         for (CameraOutputConfig output : outputConfigs) {

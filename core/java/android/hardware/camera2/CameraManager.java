@@ -698,10 +698,7 @@ public final class CameraManager {
     public CameraExtensionCharacteristics getCameraExtensionCharacteristics(
             @NonNull String cameraId) throws CameraAccessException {
         CameraCharacteristics chars = getCameraCharacteristics(cameraId);
-        Map<String, CameraCharacteristics> characteristicsMap = getPhysicalIdToCharsMap(chars);
-        characteristicsMap.put(cameraId, chars);
-
-        return new CameraExtensionCharacteristics(mContext, cameraId, characteristicsMap);
+        return new CameraExtensionCharacteristics(mContext, cameraId, chars);
     }
 
     private Map<String, CameraCharacteristics> getPhysicalIdToCharsMap(

@@ -152,6 +152,7 @@ public class CameraExtensionsProxyService extends Service {
             (EXTENSIONS_VERSION.startsWith(RESULTS_VERSION_PREFIX) ||
             EXTENSIONS_VERSION.startsWith(LATENCY_VERSION_PREFIX));
 
+    private HashMap<String, CameraCharacteristics> mCharacteristicsHashMap = new HashMap<>();
     private HashMap<String, Long> mMetadataVendorIdMap = new HashMap<>();
     private CameraManager mCameraManager;
 
@@ -561,6 +562,7 @@ public class CameraExtensionsProxyService extends Service {
             if (cameraIds != null) {
                 for (String cameraId : cameraIds) {
                     CameraCharacteristics chars = mCameraManager.getCameraCharacteristics(cameraId);
+                    mCharacteristicsHashMap.put(cameraId, chars);
                     Object thisClass = CameraCharacteristics.Key.class;
                     Class<CameraCharacteristics.Key<?>> keyClass =
                             (Class<CameraCharacteristics.Key<?>>)thisClass;
@@ -610,15 +612,6 @@ public class CameraExtensionsProxyService extends Service {
             }
         }
 
-        return ret;
-    }
-
-    private static Map<String, CameraCharacteristics> getCharacteristicsMap(
-            Map<String, CameraMetadataNative> charsMap) {
-        HashMap<String, CameraCharacteristics> ret = new HashMap<>();
-        for (Map.Entry<String, CameraMetadataNative> entry : charsMap.entrySet()) {
-            ret.put(entry.getKey(), new CameraCharacteristics(entry.getValue()));
-        }
         return ret;
     }
 
@@ -803,15 +796,13 @@ public class CameraExtensionsProxyService extends Service {
         }
 
         @Override
-        public boolean isExtensionAvailable(String cameraId,
-                Map<String, CameraMetadataNative> charsMapNative) {
-            return mAdvancedExtender.isExtensionAvailable(cameraId,
-                    getCharacteristicsMap(charsMapNative));
+        public boolean isExtensionAvailable(String cameraId) {
+            return mAdvancedExtender.isExtensionAvailable(cameraId, mCharacteristicsHashMap);
         }
 
         @Override
-        public void init(String cameraId, Map<String, CameraMetadataNative> charsMapNative) {
-            mAdvancedExtender.init(cameraId, getCharacteristicsMap(charsMapNative));
+        public void init(String cameraId) {
+            mAdvancedExtender.init(cameraId, mCharacteristicsHashMap);
         }
 
         @Override
@@ -1266,7 +1257,7 @@ public class CameraExtensionsProxyService extends Service {
 
         @Override
         public CameraSessionConfig initSession(IBinder token, String cameraId,
-                Map<String, CameraMetadataNative> charsMapNative, OutputSurface previewSurface,
+                OutputSurface previewSurface,
                 OutputSurface imageCaptureSurface, OutputSurface postviewSurface) {
             OutputSurfaceImplStub outputPreviewSurfaceImpl =
                     new OutputSurfaceImplStub(previewSurface);
@@ -1285,12 +1276,10 @@ public class CameraExtensionsProxyService extends Service {
                         outputPostviewSurfaceImpl);
 
                 sessionConfig = mSessionProcessor.initSession(cameraId,
-                        getCharacteristicsMap(charsMapNative),
-                        getApplicationContext(), outputSurfaceConfigs);
+                        mCharacteristicsHashMap, getApplicationContext(), outputSurfaceConfigs);
             } else {
                 sessionConfig = mSessionProcessor.initSession(cameraId,
-                        getCharacteristicsMap(charsMapNative),
-                        getApplicationContext(), outputPreviewSurfaceImpl,
+                        mCharacteristicsHashMap, getApplicationContext(), outputPreviewSurfaceImpl,
                         outputImageCaptureSurfaceImpl, null /*imageAnalysisSurfaceConfig*/);
             }
 
