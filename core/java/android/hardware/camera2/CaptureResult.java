@@ -5753,5 +5753,4 @@ public class CaptureResult extends CameraMetadata<CaptureResult.Key<?>> {
 
 
 
-
 }

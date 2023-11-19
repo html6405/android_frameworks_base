@@ -4588,7 +4588,7 @@ public final class CameraCharacteristics extends CameraMetadata<CameraCharacteri
      * {@link CameraCaptureSession.CaptureCallback#onCaptureStarted }.</p>
      * <p>In addition, the application can switch an output surface's timestamp from start of
      * exposure to start of readout by calling
-     * {@link android.hardware.camera2.params.OutputConfiguration#setReadoutTimestampEnabled }.</p>
+     * {@link android.hardware.camera2.params.OutputConfiguration#useReadoutTimestamp }.</p>
      * <p>The readout timestamp is beneficial for video recording, because the encoder favors
      * uniform timestamps, and the readout timestamps better reflect the cadence camera sensors
      * output data.</p>
@@ -5668,7 +5668,6 @@ public final class CameraCharacteristics extends CameraMetadata<CameraCharacteri
     /*~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~
      * End generated code
      *~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~O@*/
-
 
 
 
