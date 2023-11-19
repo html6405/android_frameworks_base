@@ -205,36 +205,6 @@ public abstract class PackageManager {
 
     /**
      * Application level {@link android.content.pm.PackageManager.Property PackageManager
-     * .Property} for an app to inform the system that the app can be opted-in or opted-out
-     * from the compatibility treatment that rotates camera output by 90 degrees on landscape
-     * sensors on devices known to have compatibility issues.
-     *
-     * <p>The treatment is disabled by default but device manufacturers can enable the treatment
-     * using their discretion to improve camera compatibility. With this property set to
-     * {@code false}, the rotation will not be applied. A value of {@code true}
-     * will ensure that rotation is applied, provided it is enabled for the device. In most cases,
-     * if rotation is the desired behavior this property need not be set. However, if your app
-     * experiences stretching or incorrect rotation on these devices, explicitly setting this to
-     * {@code true} may resolve that behavior. Apps should set this to {@code false} if there
-     * is confidence that the app handles
-     * {@link android.hardware.camera2.CameraCharacteristics#SENSOR_ORIENTATION} correctly.
-     * See <a href="https://developer.android.com/training/camera2/camera-preview"> the
-     * documentation for best practice.</a>
-     *
-     * <p><b>Syntax:</b>
-     * <pre>
-     * &lt;application&gt;
-     *   &lt;property
-     *     android:name="android.camera.PROPERTY_COMPAT_OVERRIDE_LANDSCAPE_TO_PORTRAIT"
-     *     android:value="true|false"/&gt;
-     * &lt;/application&gt;
-     * </pre>
-     */
-    public static final String PROPERTY_COMPAT_OVERRIDE_LANDSCAPE_TO_PORTRAIT =
-            "android.camera.PROPERTY_COMPAT_OVERRIDE_LANDSCAPE_TO_PORTRAIT";
-
-    /**
-     * Application level {@link android.content.pm.PackageManager.Property PackageManager
      * .Property} for a privileged system installer to define a list of up to 500 packages that
      * should not have their updates owned by any installer. The list must be provided via a default
      * XML resource with the following format:
