@@ -133,19 +133,19 @@ public final class CameraExtensionSessionImpl extends CameraExtensionSession {
     @RequiresPermission(android.Manifest.permission.CAMERA)
     public static CameraExtensionSessionImpl createCameraExtensionSession(
             @NonNull android.hardware.camera2.impl.CameraDeviceImpl cameraDevice,
-            @NonNull Map<String, CameraCharacteristics> characteristicsMap,
             @NonNull Context ctx,
             @NonNull ExtensionSessionConfiguration config,
             int sessionId,
             @NonNull IBinder token)
             throws CameraAccessException, RemoteException {
         String cameraId = cameraDevice.getId();
+        CameraManager manager = ctx.getSystemService(CameraManager.class);
+        CameraCharacteristics chars = manager.getCameraCharacteristics(cameraId);
         CameraExtensionCharacteristics extensionChars = new CameraExtensionCharacteristics(ctx,
-                cameraId, characteristicsMap);
+                cameraId, chars);
 
         if (!CameraExtensionCharacteristics.isExtensionSupported(cameraDevice.getId(),
-                config.getExtension(),
-                CameraExtensionUtils.getCharacteristicsMapNative(characteristicsMap))) {
+                config.getExtension(), chars)) {
             throw new UnsupportedOperationException("Unsupported extension type: " +
                     config.getExtension());
         }
@@ -222,12 +222,12 @@ public final class CameraExtensionSessionImpl extends CameraExtensionSession {
             }
         }
 
-        extenders.first.init(cameraId, characteristicsMap.get(cameraId).getNativeMetadata());
+        extenders.first.init(cameraId, chars.getNativeMetadata());
         extenders.first.onInit(token, cameraId,
-                characteristicsMap.get(cameraId).getNativeMetadata());
-        extenders.second.init(cameraId, characteristicsMap.get(cameraId).getNativeMetadata());
+                chars.getNativeMetadata());
+        extenders.second.init(cameraId, chars.getNativeMetadata());
         extenders.second.onInit(token, cameraId,
-                characteristicsMap.get(cameraId).getNativeMetadata());
+                chars.getNativeMetadata());
 
         CameraExtensionSessionImpl session = new CameraExtensionSessionImpl(
                 ctx,
