@@ -145,18 +145,24 @@ public final class CameraManager {
                     PackageManager.PERMISSION_GRANTED;
         }
 
+        mHandlerThread = new HandlerThread(TAG);
+        mHandlerThread.start();
+        mHandler = new Handler(mHandlerThread.getLooper());
         mFoldStateListener = new FoldStateListener(context);
         try {
-            context.getSystemService(DeviceStateManager.class).registerCallback(
-                    new HandlerExecutor(CameraManagerGlobal.get().getDeviceStateHandler()),
-                    mFoldStateListener);
+            context.getSystemService(DeviceStateManager.class)
+                    .registerCallback(new HandlerExecutor(mHandler), mFoldStateListener);
         } catch (IllegalStateException e) {
             Log.v(TAG, "Failed to register device state listener!");
             Log.v(TAG, "Device state dependent characteristics updates will not be functional!");
+            mHandlerThread.quitSafely();
+            mHandler = null;
             mFoldStateListener = null;
         }
     }
 
+    private HandlerThread mHandlerThread;
+    private Handler mHandler;
     private FoldStateListener mFoldStateListener;
 
     /**
@@ -1641,9 +1647,6 @@ public final class CameraManager {
         private ICameraService mCameraService;
         private boolean mHasOpenCloseListenerPermission = false;
 
-        private HandlerThread mDeviceStateHandlerThread;
-        private Handler mDeviceStateHandler;
-
         // Singleton, don't allow construction
         private CameraManagerGlobal() { }
 
@@ -1655,18 +1658,6 @@ public final class CameraManager {
 
         public static CameraManagerGlobal get() {
             return gCameraManager;
-        }
-
-        public Handler getDeviceStateHandler() {
-            synchronized(mLock) {
-                if (mDeviceStateHandlerThread == null) {
-                    mDeviceStateHandlerThread = new HandlerThread(TAG);
-                    mDeviceStateHandlerThread.start();
-                    mDeviceStateHandler = new Handler(mDeviceStateHandlerThread.getLooper());
-                }
-
-                return mDeviceStateHandler;
-            }
         }
 
         @Override
