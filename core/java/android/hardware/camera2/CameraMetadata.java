@@ -160,7 +160,7 @@ public abstract class CameraMetadata<TKey> {
      * Optionally, if {@code filterTags} is not {@code null}, then filter out any keys
      * whose native {@code tag} is not in {@code filterTags}. The {@code filterTags} array will be
      * sorted as a side effect.
-     * {@code includeSynthetic} Includes public synthetic fields by default.
+     * {@code includeSynthetic} Includes public syntenthic fields by default.
      * </p>
      */
      /*package*/ @SuppressWarnings("unchecked")
@@ -2317,7 +2317,7 @@ public abstract class CameraMetadata<TKey> {
     /**
      * <p>An external flash has been turned on.</p>
      * <p>It informs the camera device that an external flash has been turned on, and that
-     * metering (and continuous focus if active) should be quickly recalculated to account
+     * metering (and continuous focus if active) should be quickly recaculated to account
      * for the external flash. Otherwise, this mode acts like ON.</p>
      * <p>When the external flash is turned off, AE mode should be changed to one of the
      * other available AE modes.</p>

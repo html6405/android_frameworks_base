@@ -607,7 +607,7 @@ public final class MandatoryStreamCombination {
         new StreamCombinationTemplate(new StreamTemplate [] {
                 new StreamTemplate(ImageFormat.YUV_420_888, SizeThreshold.MAXIMUM),
                 new StreamTemplate(ImageFormat.YUV_420_888, SizeThreshold.MAXIMUM) },
-                "Maximum-resolution two-input in-app processing"),
+                "Maximum-resolution two-input in-app processsing"),
         new StreamCombinationTemplate(new StreamTemplate [] {
                 new StreamTemplate(ImageFormat.PRIVATE, SizeThreshold.PREVIEW),
                 new StreamTemplate(ImageFormat.PRIVATE, SizeThreshold.PREVIEW),
@@ -891,7 +891,7 @@ public final class MandatoryStreamCombination {
         new StreamCombinationTemplate(new StreamTemplate [] {
                 new StreamTemplate(ImageFormat.PRIVATE, SizeThreshold.s720p),
                 new StreamTemplate(ImageFormat.JPEG, SizeThreshold.s1440p)},
-                "Standard still image capture"),
+                "Standard stil image capture"),
         new StreamCombinationTemplate(new StreamTemplate [] {
                 new StreamTemplate(ImageFormat.YUV_420_888, SizeThreshold.s720p),
                 new StreamTemplate(ImageFormat.JPEG, SizeThreshold.s1440p)},
