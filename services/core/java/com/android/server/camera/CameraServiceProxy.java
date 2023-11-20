@@ -573,10 +573,6 @@ public class CameraServiceProxy extends SystemService
          * Placeholder method to fetch the system state for autoframing.
          * TODO: b/260617354
          */
-        @Override
-        public int getAutoframingOverride(String packageName) {
-            return CaptureRequest.CONTROL_AUTOFRAMING_OFF;
-        }
 
         @Override
         public void pingForUserUpdate() {
@@ -606,31 +602,6 @@ public class CameraServiceProxy extends SystemService
             }
 
             updateActivityCount(cameraState);
-        }
-
-        @Override
-        public boolean isCameraDisabled(int userId) {
-            if (Binder.getCallingUid() != Process.CAMERASERVER_UID) {
-                Slog.e(TAG, "Calling UID: " + Binder.getCallingUid()
-                        + " doesn't match expected camera service UID!");
-                return false;
-            }
-            final long ident = Binder.clearCallingIdentity();
-            try {
-                DevicePolicyManager dpm = mContext.getSystemService(DevicePolicyManager.class);
-                if (dpm == null) {
-                    Slog.e(TAG, "Failed to get the device policy manager service");
-                    return false;
-                }
-                try {
-                    return dpm.getCameraDisabled(null, userId);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return false;
-                }
-            } finally {
-                Binder.restoreCallingIdentity(ident);
-            }
         }
     };
 
@@ -908,7 +879,7 @@ public class CameraServiceProxy extends SystemService
                     }
                 }
             }
-            FrameworkStatsLog.write(FrameworkStatsLog.CAMERA_ACTION_EVENT, e.getDuration(),
+/*            FrameworkStatsLog.write(FrameworkStatsLog.CAMERA_ACTION_EVENT, e.getDuration(),
                     e.mAPILevel, e.mClientName, facing, e.mCameraId, e.mAction, e.mIsNdk,
                     e.mLatencyMs, e.mOperatingMode, e.mInternalReconfigure,
                     e.mRequestCount, e.mResultErrorCount, e.mDeviceError,
@@ -917,7 +888,7 @@ public class CameraServiceProxy extends SystemService
                     MessageNano.toByteArray(streamProtos[2]),
                     MessageNano.toByteArray(streamProtos[3]),
                     MessageNano.toByteArray(streamProtos[4]),
-                    e.mUserTag, e.mVideoStabilizationMode, e.mLogId, e.mSessionIndex);
+                    e.mUserTag, e.mVideoStabilizationMode, e.mLogId, e.mSessionIndex, 0, 0); */
         }
     }
 
