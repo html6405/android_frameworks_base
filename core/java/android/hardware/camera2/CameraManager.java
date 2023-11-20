@@ -27,7 +27,6 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Point;
 import android.hardware.Camera;
-import android.hardware.CameraIdRemapping;
 import android.hardware.CameraInfo;
 import android.hardware.CameraStatus;
 import android.hardware.ICameraService;
@@ -1532,17 +1531,6 @@ public final class CameraManager {
     }
 
     /**
-     * Remaps Camera Ids in the CameraService.
-     *
-     * @hide
-    */
-    @RequiresPermission(android.Manifest.permission.CAMERA_INJECT_EXTERNAL_CAMERA)
-    public void remapCameraIds(@NonNull CameraIdRemapping cameraIdRemapping)
-            throws CameraAccessException, SecurityException, IllegalArgumentException {
-        CameraManagerGlobal.get().remapCameraIds(cameraIdRemapping);
-    }
-
-    /**
      * A per-process global camera manager instance, to retain a connection to the camera service,
      * and to distribute camera availability notices to API-registered callbacks
      */
@@ -1590,13 +1578,6 @@ public final class CameraManager {
                 new ArrayMap<TorchCallback, Executor>();
 
         private final Object mLock = new Object();
-
-        /**
-         * The active CameraIdRemapping. This will be used to refresh the cameraIdRemapping state
-         * in the CameraService every time we connect to it, including when the CameraService
-         * Binder dies and we reconnect to it.
-         */
-        @Nullable private CameraIdRemapping mActiveCameraIdRemapping;
 
         // Access only through getCameraService to deal with binder death
         private ICameraService mCameraService;
@@ -1705,41 +1686,6 @@ public final class CameraManager {
                         e);
             } catch (RemoteException e) {
                 // Camera service died in all probability
-            }
-
-            if (mActiveCameraIdRemapping != null) {
-                try {
-                    cameraService.remapCameraIds(mActiveCameraIdRemapping);
-                } catch (ServiceSpecificException e) {
-                    // Unexpected failure, ignore and continue.
-                    Log.e(TAG, "Unable to remap camera Ids in the camera service");
-                } catch (RemoteException e) {
-                    // Camera service died in all probability
-                }
-            }
-        }
-
-        /** Updates the cameraIdRemapping state in the CameraService. */
-        public void remapCameraIds(@NonNull CameraIdRemapping cameraIdRemapping)
-                throws CameraAccessException, SecurityException {
-            synchronized (mLock) {
-                ICameraService cameraService = getCameraService();
-                if (cameraService == null) {
-                    throw new CameraAccessException(
-                            CameraAccessException.CAMERA_DISCONNECTED,
-                            "Camera service is currently unavailable.");
-                }
-
-                try {
-                    cameraService.remapCameraIds(cameraIdRemapping);
-                    mActiveCameraIdRemapping = cameraIdRemapping;
-                } catch (ServiceSpecificException e) {
-                    throwAsPublicException(e);
-                } catch (RemoteException e) {
-                    throw new CameraAccessException(
-                            CameraAccessException.CAMERA_DISCONNECTED,
-                            "Camera service is currently unavailable.");
-                }
             }
         }
 
