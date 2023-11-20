@@ -81,7 +81,6 @@ public final class CameraAdvancedExtensionSessionImpl extends CameraExtensionSes
 
     private final Executor mExecutor;
     private final CameraDevice mCameraDevice;
-    private final long mExtensionClientId;
     private final Handler mHandler;
     private final HandlerThread mHandlerThread;
     private final CameraExtensionSession.StateCallback mCallbacks;
@@ -115,9 +114,14 @@ public final class CameraAdvancedExtensionSessionImpl extends CameraExtensionSes
     @RequiresPermission(android.Manifest.permission.CAMERA)
     public static CameraAdvancedExtensionSessionImpl createCameraAdvancedExtensionSession(
             @NonNull android.hardware.camera2.impl.CameraDeviceImpl cameraDevice,
-            @NonNull Map<String, CameraCharacteristics> characteristicsMap,
+            @NonNull Context ctx, @NonNull ExtensionSessionConfiguration config, int sessionId,
             @NonNull IBinder token)
             throws CameraAccessException, RemoteException {
+        boolean clientId = CameraExtensionCharacteristics.registerClient(ctx, token);
+        if (!clientId) {
+            throw new UnsupportedOperationException("Unsupported extension!");
+        }
+
         String cameraId = cameraDevice.getId();
         CameraManager manager = ctx.getSystemService(CameraManager.class);
         CameraCharacteristics chars = manager.getCameraCharacteristics(cameraId);
@@ -203,10 +207,8 @@ public final class CameraAdvancedExtensionSessionImpl extends CameraExtensionSes
         extender.init(cameraId);
 
         CameraAdvancedExtensionSessionImpl ret = new CameraAdvancedExtensionSessionImpl(ctx,
-                extender, cameraDevice, repeatingRequestSurface,
-                burstCaptureSurface, postviewSurface, config.getStateCallback(),
-                config.getExecutor(), sessionId, token, config.getExtension());
-
+                extender, cameraDevice, repeatingRequestSurface, burstCaptureSurface,
+                postviewSurface, config.getStateCallback(), config.getExecutor(), sessionId, token);
         ret.initialize();
 
         return ret;
@@ -284,7 +286,6 @@ public final class CameraAdvancedExtensionSessionImpl extends CameraExtensionSes
             // The extension processing logic needs to be able to match images to capture results via
             // image and result timestamps.
             cameraOutput.setTimestampBase(OutputConfiguration.TIMESTAMP_BASE_SENSOR);
-            cameraOutput.setReadoutTimestampEnabled(false);
             cameraOutput.setPhysicalCameraId(output.physicalCameraId);
             outputList.add(cameraOutput);
             mCameraConfigMap.put(cameraOutput.getSurface(), output);

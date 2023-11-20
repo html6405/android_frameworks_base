@@ -490,7 +490,6 @@ public final class CameraExtensionSessionImpl extends CameraExtensionSession {
         // The extension processing logic needs to be able to match images to capture results via
         // image and result timestamps.
         previewOutput.setTimestampBase(OutputConfiguration.TIMESTAMP_BASE_SENSOR);
-        previewOutput.setReadoutTimestampEnabled(false);
         outputList.add(previewOutput);
         CaptureStageImpl previewSessionParams = mPreviewExtender.onPresetSession();
         if (previewSessionParams != null) {
@@ -499,7 +498,6 @@ public final class CameraExtensionSessionImpl extends CameraExtensionSession {
         initializeBurstCapturePipeline();
         OutputConfiguration captureOutput = new OutputConfiguration(mCameraBurstSurface);
         captureOutput.setTimestampBase(OutputConfiguration.TIMESTAMP_BASE_SENSOR);
-        captureOutput.setReadoutTimestampEnabled(false);
         outputList.add(captureOutput);
         CaptureStageImpl stillCaptureSessionParams = mImageExtender.onPresetSession();
         if (stillCaptureSessionParams != null) {
