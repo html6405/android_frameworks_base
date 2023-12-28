@@ -104,11 +104,10 @@ public class PackageInfoUtils {
     @Nullable
     public static PackageInfo generate(AndroidPackage pkg, int[] gids,
             @PackageManager.PackageInfoFlagsBits long flags, long firstInstallTime,
-            long lastUpdateTime, Set<String> installedPermissions, Set<String> grantedPermissions,
-            PackageUserStateInternal state, @UserIdInt int userId,
-            @NonNull PackageStateInternal pkgSetting) {
+            long lastUpdateTime, Set<String> grantedPermissions, PackageUserStateInternal state,
+            @UserIdInt int userId, @NonNull PackageStateInternal pkgSetting) {
         return generateWithComponents(pkg, gids, flags, firstInstallTime, lastUpdateTime,
-                installedPermissions, grantedPermissions, state, userId, pkgSetting);
+                grantedPermissions, state, userId, pkgSetting);
     }
 
     /**
@@ -116,9 +115,8 @@ public class PackageInfoUtils {
      */
     private static PackageInfo generateWithComponents(AndroidPackage pkg, int[] gids,
             @PackageManager.PackageInfoFlagsBits long flags, long firstInstallTime,
-            long lastUpdateTime, Set<String> installedPermissions, Set<String> grantedPermissions,
-            PackageUserStateInternal state, @UserIdInt int userId,
-            @NonNull PackageStateInternal pkgSetting) {
+            long lastUpdateTime, Set<String> grantedPermissions, PackageUserStateInternal state,
+            @UserIdInt int userId, @NonNull PackageStateInternal pkgSetting) {
         ApplicationInfo applicationInfo = generateApplicationInfo(pkg, flags, state, userId,
                 pkgSetting);
         if (applicationInfo == null) {
@@ -176,12 +174,8 @@ public class PackageInfoUtils {
             if (size > 0) {
                 info.permissions = new PermissionInfo[size];
                 for (int i = 0; i < size; i++) {
-                    final var permission = pkg.getPermissions().get(i);
-                    final var permissionInfo = generatePermissionInfo(permission, flags);
-                    if (installedPermissions.contains(permission.getName())) {
-                        permissionInfo.flags |= PermissionInfo.FLAG_INSTALLED;
-                    }
-                    info.permissions[i] = permissionInfo;
+                    info.permissions[i] = generatePermissionInfo(pkg.getPermissions().get(i),
+                            flags);
                 }
             }
             final List<ParsedUsesPermission> usesPermissions = pkg.getUsesPermissions();
