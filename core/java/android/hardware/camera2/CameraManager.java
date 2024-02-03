@@ -2076,7 +2076,7 @@ public final class CameraManager {
                 try {
                     cameraService.setTorchMode(cameraId, enabled, mTorchClientBinder);
                 } catch(ServiceSpecificException e) {
-                    throw ExceptionUtils.throwAsPublicException(e);
+                    Log.w(TAG, e.getMessage());
                 } catch (RemoteException e) {
                     throw new CameraAccessException(CameraAccessException.CAMERA_DISCONNECTED,
                             "Camera service is currently unavailable");
