@@ -357,7 +357,7 @@ public final class CameraExtensionSessionImpl extends CameraExtensionSession {
             mCameraRepeatingSurface = mRepeatingRequestImageReader.getSurface();
         }
         mRepeatingRequestImageCallback = new CameraOutputImageCallback(
-                mRepeatingRequestImageReader, true /*pruneOlderBuffers*/);
+                mRepeatingRequestImageReader);
         mRepeatingRequestImageReader
                 .setOnImageAvailableListener(mRepeatingRequestImageCallback, mHandler);
     }
@@ -398,8 +398,7 @@ public final class CameraExtensionSessionImpl extends CameraExtensionSession {
                         CameraExtensionCharacteristics.PROCESSING_INPUT_FORMAT);
             }
 
-            mBurstCaptureImageCallback = new CameraOutputImageCallback(mBurstCaptureImageReader,
-                    false /*pruneOlderBuffers*/);
+            mBurstCaptureImageCallback = new CameraOutputImageCallback(mBurstCaptureImageReader);
             mBurstCaptureImageReader.setOnImageAvailableListener(mBurstCaptureImageCallback,
                     mHandler);
             mCameraBurstSurface = mBurstCaptureImageReader.getSurface();
@@ -1107,9 +1106,7 @@ public final class CameraExtensionSessionImpl extends CameraExtensionSession {
                 }
 
                 for (Pair<Image, TotalCaptureResult> captureStage : mCaptureStageMap.values()) {
-                    if (captureStage.first != null) {
-                        captureStage.first.close();
-                    }
+                    captureStage.first.close();
                 }
                 mCaptureStageMap.clear();
             }
@@ -1210,7 +1207,6 @@ public final class CameraExtensionSessionImpl extends CameraExtensionSession {
                 if (mImageProcessor != null) {
                     if (mCapturePendingMap.indexOfKey(timestamp) >= 0) {
                         Image img = mCapturePendingMap.get(timestamp).first;
-                        mCapturePendingMap.remove(timestamp);
                         mCaptureStageMap.put(stageId, new Pair<>(img, result));
                         checkAndFireBurstProcessing();
                     } else {
@@ -1307,7 +1303,6 @@ public final class CameraExtensionSessionImpl extends CameraExtensionSession {
                 reader.detachImage(img);
                 if (mCapturePendingMap.indexOfKey(timestamp) >= 0) {
                     Integer stageId = mCapturePendingMap.get(timestamp).second;
-                    mCapturePendingMap.remove(timestamp);
                     Pair<Image, TotalCaptureResult> captureStage =
                             mCaptureStageMap.get(stageId);
                     if (captureStage != null) {
@@ -1407,11 +1402,9 @@ public final class CameraExtensionSessionImpl extends CameraExtensionSession {
         private HashMap<Long, Pair<Image, OnImageAvailableListener>> mImageListenerMap =
                 new HashMap<>();
         private boolean mOutOfBuffers = false;
-        private final boolean mPruneOlderBuffers;
 
-        CameraOutputImageCallback(ImageReader imageReader, boolean pruneOlderBuffers) {
+        CameraOutputImageCallback(ImageReader imageReader) {
             mImageReader = imageReader;
-            mPruneOlderBuffers = pruneOlderBuffers;
         }
 
         @Override
@@ -1454,10 +1447,6 @@ public final class CameraExtensionSessionImpl extends CameraExtensionSession {
                 ArrayList<Long> removedTs = new ArrayList<>();
                 for (long ts : timestamps) {
                     if (ts < timestamp) {
-                        if (!mPruneOlderBuffers) {
-                            Log.w(TAG, "Unexpected older image with ts: " + ts);
-                            continue;
-                        }
                         Log.e(TAG, "Dropped image with ts: " + ts);
                         Pair<Image, OnImageAvailableListener> entry = mImageListenerMap.get(ts);
                         if (entry.second != null) {
