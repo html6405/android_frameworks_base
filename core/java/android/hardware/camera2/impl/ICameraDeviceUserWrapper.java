@@ -16,11 +16,19 @@
 
 package android.hardware.camera2.impl;
 
+import static android.hardware.camera2.CameraAccessException.CAMERA_DISABLED;
+import static android.hardware.camera2.CameraAccessException.CAMERA_DISCONNECTED;
+import static android.hardware.camera2.CameraAccessException.CAMERA_IN_USE;
+import static android.hardware.camera2.CameraAccessException.CAMERA_ERROR;
+import static android.hardware.camera2.CameraAccessException.MAX_CAMERAS_IN_USE;
+import static android.hardware.camera2.CameraAccessException.CAMERA_DEPRECATED_HAL;
+
 import android.hardware.ICameraService;
+import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CaptureRequest;
-import android.hardware.camera2.ICameraDeviceCallbacks;
 import android.hardware.camera2.ICameraDeviceUser;
+import android.hardware.camera2.ICameraDeviceCallbacks;
 import android.hardware.camera2.ICameraOfflineSession;
 import android.hardware.camera2.params.OutputConfiguration;
 import android.hardware.camera2.params.SessionConfiguration;
@@ -202,9 +210,10 @@ public class ICameraDeviceUserWrapper {
                 throw new IllegalArgumentException("Invalid session configuration");
             }
 
-            throw ExceptionUtils.throwAsPublicException(e);
-        } catch (RemoteException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
+            throw e;
+        } catch (Throwable t) {
+            CameraManager.throwAsPublicException(t);
+            throw new UnsupportedOperationException("Unexpected exception", t);
         }
     }
 
