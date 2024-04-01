@@ -17,7 +17,6 @@
 package android.hardware.camera2;
 
 import android.annotation.CallbackExecutor;
-import android.annotation.FlaggedApi;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
@@ -65,7 +64,6 @@ import android.util.Log;
 import android.util.Size;
 import android.view.Display;
 
-import com.android.internal.camera.flags.Flags;
 import com.android.internal.util.ArrayUtils;
 
 import java.lang.ref.WeakReference;
@@ -2311,13 +2309,15 @@ public final class CameraManager {
                     return mCameraService.isConcurrentSessionConfigurationSupported(
                             cameraIdsAndConfigs, targetSdkVersion);
                 } catch (ServiceSpecificException e) {
-                    throw ExceptionUtils.throwAsPublicException(e);
+                   throwAsPublicException(e);
                 } catch (RemoteException e) {
                   // Camera service died - act as if the camera was disconnected
                   throw new CameraAccessException(CameraAccessException.CAMERA_DISCONNECTED,
                           "Camera service is currently unavailable", e);
                 }
             }
+
+            return false;
         }
 
       /**
