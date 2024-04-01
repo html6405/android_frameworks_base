@@ -1402,7 +1402,6 @@ public final class OutputConfiguration implements Parcelable {
                 if (mSurfaces.get(i) != other.mSurfaces.get(i))
                     return false;
             }
-            if (!mIsDeferredConfig && mSurfaces.size() != other.mSurfaces.size()) return false;
             if (mDynamicRangeProfile != other.mDynamicRangeProfile) {
                 return false;
             }
