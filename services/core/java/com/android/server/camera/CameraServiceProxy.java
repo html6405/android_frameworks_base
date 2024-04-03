@@ -955,12 +955,10 @@ public class CameraServiceProxy extends SystemService
             handles.add(id);
         }
 
-        if (Flags.cameraHsumPermission()) {
-            // If the device is running in headless system user mode then allow
-            // User 0 to access camera only for automotive form factor.
-            if (UserManager.isHeadlessSystemUserMode() && isAutomotive()) {
-                handles.add(UserHandle.USER_SYSTEM);
-            }
+        // If the device is running in headless system user mode then allow
+        // User 0 to access camera.
+        if (UserManager.isHeadlessSystemUserMode()) {
+            handles.add(UserHandle.USER_SYSTEM);
         }
 
         return handles;
