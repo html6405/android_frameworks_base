@@ -597,7 +597,7 @@ final class VirtualDeviceImpl extends IVirtualDevice.Stub
     }
 
     @Override
-    @RequiresPermission(android.Manifest.permission.CAMERA_INJECT_EXTERNAL_CAMERA)
+//    @RequiresPermission(android.Manifest.permission.CAMERA_INJECT_EXTERNAL_CAMERA)
     public void onRunningAppsChanged(ArraySet<Integer> runningUids) {
         if (mCameraAccessController != null) {
             mCameraAccessController.blockCameraAccessIfNeeded(runningUids);
