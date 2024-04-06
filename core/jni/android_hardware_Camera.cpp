@@ -21,7 +21,6 @@
 #include <android_runtime/android_view_Surface.h>
 #include <binder/IMemory.h>
 #include <camera/Camera.h>
-#include <camera/StringUtils.h>
 #include <cutils/properties.h>
 #include <gui/GLConsumer.h>
 #include <gui/Surface.h>
@@ -611,7 +610,7 @@ static jint android_hardware_Camera_native_setup(JNIEnv *env, jobject thiz,
     const char16_t *rawClientName = reinterpret_cast<const char16_t*>(
         env->GetStringChars(clientPackageName, NULL));
     jsize rawClientNameLen = env->GetStringLength(clientPackageName);
-    std::string clientName = toStdString(rawClientName, rawClientNameLen);
+    String16 clientName(rawClientName, rawClientNameLen);
     env->ReleaseStringChars(clientPackageName,
                             reinterpret_cast<const jchar*>(rawClientName));
 
