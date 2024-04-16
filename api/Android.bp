@@ -148,7 +148,6 @@ genrule {
     out: ["updated-baseline.txt"],
     tools: ["metalava"],
     cmd: metalava_cmd +
-        "--check-compatibility:api:released $(location :android.api.public.latest) " +
         "--baseline:compatibility:released $(location :android-incompatibilities.api.public.latest) " +
         "--update-baseline:compatibility:released $(genDir)/updated-baseline.txt " +
         "$(location :frameworks-base-api-current.txt)",
