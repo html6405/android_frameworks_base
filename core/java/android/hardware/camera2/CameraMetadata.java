@@ -20,7 +20,6 @@ import android.annotation.NonNull;
 import android.annotation.TestApi;
 import android.compat.annotation.UnsupportedAppUsage;
 import android.hardware.camera2.impl.CameraMetadataNative;
-import android.hardware.camera2.impl.ExtensionKey;
 import android.hardware.camera2.impl.PublicKey;
 import android.hardware.camera2.impl.SyntheticKey;
 import android.util.Log;
@@ -274,11 +273,8 @@ public abstract class CameraMetadata<TKey> {
             throw new IllegalArgumentException("key type must be that of a metadata key");
         }
 
-        if (field.getAnnotation(PublicKey.class) == null
-                && field.getAnnotation(ExtensionKey.class) == null) {
-            // Never expose @hide keys to the API user unless they are
-            // marked as @ExtensionKey, as these keys are publicly accessible via
-            // the extension key classes.
+        if (field.getAnnotation(PublicKey.class) == null) {
+            // Never expose @hide keys up to the API user
             return false;
         }
 
