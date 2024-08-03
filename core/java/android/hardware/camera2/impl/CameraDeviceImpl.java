@@ -108,9 +108,6 @@ public class CameraDeviceImpl extends CameraDevice
     private ICameraDeviceUserWrapper mRemoteDevice;
     private boolean mRemoteDeviceInit = false;
 
-    // CameraDeviceSetup object to delegate some of the newer calls to.
-    @Nullable private final CameraDeviceSetup mCameraDeviceSetup;
-
     // Lock to synchronize cross-thread access to device public interface
     final Object mInterfaceLock = new Object(); // access from this class and Session only!
     private final CameraDeviceCallbacks mCallbacks = new CameraDeviceCallbacks();
@@ -298,8 +295,7 @@ public class CameraDeviceImpl extends CameraDevice
                         CameraCharacteristics characteristics,
                         Map<String, CameraCharacteristics> physicalIdsToChars,
                         int appTargetSdkVersion,
-                        Context ctx,
-                        @Nullable CameraDevice.CameraDeviceSetup cameraDeviceSetup) {
+                        Context ctx) {
         if (cameraId == null || callback == null || executor == null || characteristics == null) {
             throw new IllegalArgumentException("Null argument given");
         }
@@ -310,7 +306,6 @@ public class CameraDeviceImpl extends CameraDevice
         mPhysicalIdsToChars = physicalIdsToChars;
         mAppTargetSdkVersion = appTargetSdkVersion;
         mContext = ctx;
-        mCameraDeviceSetup = cameraDeviceSetup;
 
         final int MAX_TAG_LEN = 23;
         String tag = String.format("CameraDevice-JV-%s", mCameraId);
@@ -799,11 +794,7 @@ public class CameraDeviceImpl extends CameraDevice
             UnsupportedOperationException, IllegalArgumentException {
         synchronized(mInterfaceLock) {
             checkIfCameraClosedOrInError();
-            if (CompatChanges.isChangeEnabled(CHECK_PARAMS_IN_IS_SESSION_CONFIGURATION_SUPPORTED)
-                    && Flags.cameraDeviceSetup()
-                    && mCameraDeviceSetup != null) {
-                return mCameraDeviceSetup.isSessionConfigurationSupported(sessionConfig);
-            }
+
             return mRemoteDevice.isSessionConfigurationSupported(sessionConfig);
         }
     }

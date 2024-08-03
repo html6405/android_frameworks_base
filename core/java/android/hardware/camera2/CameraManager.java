@@ -33,7 +33,6 @@ import android.hardware.ICameraService;
 import android.hardware.ICameraServiceListener;
 import android.hardware.camera2.CameraDevice.StateCallback;
 import android.hardware.camera2.impl.CameraDeviceImpl;
-import android.hardware.camera2.impl.CameraDeviceSetupImpl;
 import android.hardware.camera2.impl.CameraMetadataNative;
 import android.hardware.camera2.params.ExtensionSessionConfiguration;
 import android.hardware.camera2.legacy.CameraDeviceUserShim;
@@ -675,102 +674,6 @@ public final class CameraManager {
     }
 
     /**
-     * Returns a {@link CameraDevice.CameraDeviceSetup} object for the given {@code cameraId},
-     * which provides limited access to CameraDevice setup and query functionality without
-     * requiring an {@link #openCamera} call. The {@link CameraDevice} can later be obtained either
-     * by calling {@link #openCamera}, or {@link CameraDevice.CameraDeviceSetup#openCamera}.
-     *
-     * <p>Support for {@link CameraDevice.CameraDeviceSetup} for a given {@code cameraId} must be
-     * checked with {@link #isCameraDeviceSetupSupported}. If {@code isCameraDeviceSetupSupported}
-     * returns {@code false} for a {@code cameraId}, this method will throw an
-     * {@link UnsupportedOperationException}</p>
-     *
-     * @param cameraId The unique identifier of the camera device for which
-     *                 {@link CameraDevice.CameraDeviceSetup} object must be constructed. This
-     *                 identifier must be present in {@link #getCameraIdList()}
-     *
-     * @return {@link CameraDevice.CameraDeviceSetup} object corresponding to the provided
-     * {@code cameraId}
-     *
-     * @throws IllegalArgumentException If {@code cameraId} is null, or if {@code cameraId} does not
-     * match any device in {@link #getCameraIdList()}.
-     * @throws CameraAccessException if the camera device is not accessible
-     * @throws UnsupportedOperationException if {@link CameraDevice.CameraDeviceSetup} instance
-     * cannot be constructed for the given {@code cameraId}, i.e.
-     * {@link #isCameraDeviceSetupSupported} returns false.
-     *
-     * @see CameraDevice.CameraDeviceSetup
-     * @see #getCameraIdList()
-     * @see #openCamera
-     */
-    @NonNull
-    @FlaggedApi(Flags.FLAG_CAMERA_DEVICE_SETUP)
-    public CameraDevice.CameraDeviceSetup getCameraDeviceSetup(@NonNull String cameraId)
-            throws CameraAccessException {
-        // isCameraDeviceSetup does all the error checking we need.
-        if (!isCameraDeviceSetupSupported(cameraId)) {
-            throw new UnsupportedOperationException(
-                    "CameraDeviceSetup is not supported for Camera ID: " + cameraId);
-        }
-
-        return getCameraDeviceSetupUnsafe(cameraId);
-
-    }
-
-    /**
-     * Creates and returns a {@link CameraDeviceSetup} instance without any error checking. To
-     * be used (carefully) by callers who are sure that CameraDeviceSetup instance can be legally
-     * created and don't want to pay the latency cost of calling {@link #getCameraDeviceSetup}.
-     */
-    private CameraDevice.CameraDeviceSetup getCameraDeviceSetupUnsafe(@NonNull String cameraId) {
-        return new CameraDeviceSetupImpl(cameraId, /*cameraManager=*/ this, mContext);
-    }
-
-    /**
-     * Checks a Camera Device's characteristics to ensure that a
-     * {@link CameraDevice.CameraDeviceSetup} instance can be constructed for a given
-     * {@code cameraId}. If this method returns false for a {@code cameraId}, calling
-     * {@link #getCameraDeviceSetup} for that {@code cameraId} will throw an
-     * {@link UnsupportedOperationException}.
-     *
-     * <p>{@link CameraDevice.CameraDeviceSetup} is supported for all devices that report
-     * {@link CameraCharacteristics#INFO_SESSION_CONFIGURATION_QUERY_VERSION} >
-     * {@link android.os.Build.VERSION_CODES#UPSIDE_DOWN_CAKE}</p>
-     *
-     * @param cameraId The unique identifier of the camera device for which
-     *                 {@link CameraDevice.CameraDeviceSetup} support is being queried. This
-     *                 identifier must be present in {@link #getCameraIdList()}.
-     *
-     * @return {@code true} if {@link CameraDevice.CameraDeviceSetup} object can be constructed
-     * for the provided {@code cameraId}; {@code false} otherwise.
-     *
-     * @throws IllegalArgumentException If {@code cameraId} is null, or if {@code cameraId} does not
-     *                                  match any device in {@link #getCameraIdList()}.
-     * @throws CameraAccessException    if the camera device is not accessible
-     *
-     * @see CameraCharacteristics#INFO_SESSION_CONFIGURATION_QUERY_VERSION
-     * @see CameraDevice.CameraDeviceSetup
-     * @see #getCameraDeviceSetup(String)
-     * @see #getCameraIdList()
-     */
-    @FlaggedApi(Flags.FLAG_CAMERA_DEVICE_SETUP)
-    public boolean isCameraDeviceSetupSupported(@NonNull String cameraId)
-            throws CameraAccessException {
-        if (cameraId == null) {
-            throw new IllegalArgumentException("Camera ID was null");
-        }
-
-        if (CameraManagerGlobal.sCameraServiceDisabled
-                || !Arrays.asList(CameraManagerGlobal.get().getCameraIdList()).contains(cameraId)) {
-            throw new IllegalArgumentException(
-                    "Camera ID '" + cameraId + "' not available on device.");
-        }
-
-        CameraCharacteristics chars = getCameraCharacteristics(cameraId);
-        return CameraDeviceSetupImpl.isCameraDeviceSetupSupported(chars);
-    }
-
-    /**
      * Helper for opening a connection to a camera with the given ID.
      *
      * @param cameraId The unique identifier of the camera device to open
@@ -803,12 +706,6 @@ public final class CameraManager {
         synchronized (mLock) {
 
             ICameraDeviceUser cameraUser = null;
-            CameraDevice.CameraDeviceSetup cameraDeviceSetup = null;
-            if (Flags.cameraDeviceSetup()
-                    && CameraDeviceSetupImpl.isCameraDeviceSetupSupported(characteristics)) {
-                cameraDeviceSetup = getCameraDeviceSetupUnsafe(cameraId);
-            }
-
             android.hardware.camera2.impl.CameraDeviceImpl deviceImpl =
                     new android.hardware.camera2.impl.CameraDeviceImpl(
                         cameraId,
@@ -817,7 +714,8 @@ public final class CameraManager {
                         characteristics,
                         physicalIdsToChars,
                         mContext.getApplicationInfo().targetSdkVersion,
-                        mContext, cameraDeviceSetup);
+                        mContext);
+
             ICameraDeviceCallbacks callbacks = deviceImpl.getCallbacks();
 
             try {
