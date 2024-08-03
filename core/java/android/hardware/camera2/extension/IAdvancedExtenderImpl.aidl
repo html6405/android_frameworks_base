@@ -36,5 +36,4 @@ interface IAdvancedExtenderImpl
     CameraMetadataNative getAvailableCaptureResultKeys(in String cameraId);
     boolean isCaptureProcessProgressAvailable();
     boolean isPostviewAvailable();
-    CameraMetadataNative getAvailableCharacteristicsKeyValues(in String cameraId);
 }

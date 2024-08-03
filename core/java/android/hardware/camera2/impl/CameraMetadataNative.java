@@ -78,8 +78,6 @@ import android.util.Log;
 import android.util.Range;
 import android.util.Size;
 
-import com.android.internal.camera.flags.Flags;
-
 import dalvik.annotation.optimization.FastNative;
 import dalvik.system.VMRuntime;
 

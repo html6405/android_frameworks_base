@@ -30,9 +30,9 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.ICameraDeviceUser;
 import android.hardware.camera2.ICameraDeviceCallbacks;
 import android.hardware.camera2.ICameraOfflineSession;
+import android.hardware.camera2.impl.CameraMetadataNative;
 import android.hardware.camera2.params.OutputConfiguration;
 import android.hardware.camera2.params.SessionConfiguration;
-import android.hardware.camera2.utils.ExceptionUtils;
 import android.hardware.camera2.utils.SubmitInfo;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -76,10 +76,9 @@ public class ICameraDeviceUserWrapper {
             throws CameraAccessException  {
         try {
             return mRemoteDevice.submitRequest(request, streaming);
-        } catch (ServiceSpecificException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
-        } catch (RemoteException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
+        } catch (Throwable t) {
+            CameraManager.throwAsPublicException(t);
+            throw new UnsupportedOperationException("Unexpected exception", t);
         }
     }
 
@@ -87,30 +86,27 @@ public class ICameraDeviceUserWrapper {
             throws CameraAccessException {
         try {
             return mRemoteDevice.submitRequestList(requestList, streaming);
-        } catch (ServiceSpecificException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
-        } catch (RemoteException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
+        } catch (Throwable t) {
+            CameraManager.throwAsPublicException(t);
+            throw new UnsupportedOperationException("Unexpected exception", t);
         }
     }
 
     public long cancelRequest(int requestId) throws CameraAccessException {
         try {
             return mRemoteDevice.cancelRequest(requestId);
-        } catch (ServiceSpecificException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
-        } catch (RemoteException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
+        } catch (Throwable t) {
+            CameraManager.throwAsPublicException(t);
+            throw new UnsupportedOperationException("Unexpected exception", t);
         }
     }
 
     public void beginConfigure() throws CameraAccessException {
         try {
             mRemoteDevice.beginConfigure();
-        } catch (ServiceSpecificException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
-        } catch (RemoteException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
+        } catch (Throwable t) {
+            CameraManager.throwAsPublicException(t);
+            throw new UnsupportedOperationException("Unexpected exception", t);
         }
     }
 
@@ -119,20 +115,18 @@ public class ICameraDeviceUserWrapper {
         try {
             return mRemoteDevice.endConfigure(operatingMode, (sessionParams == null) ?
                     new CameraMetadataNative() : sessionParams, startTimeMs);
-        } catch (ServiceSpecificException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
-        } catch (RemoteException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
+        } catch (Throwable t) {
+            CameraManager.throwAsPublicException(t);
+            throw new UnsupportedOperationException("Unexpected exception", t);
         }
     }
 
     public void deleteStream(int streamId) throws CameraAccessException {
         try {
             mRemoteDevice.deleteStream(streamId);
-        } catch (ServiceSpecificException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
-        } catch (RemoteException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
+        } catch (Throwable t) {
+            CameraManager.throwAsPublicException(t);
+            throw new UnsupportedOperationException("Unexpected exception", t);
         }
     }
 
@@ -140,10 +134,9 @@ public class ICameraDeviceUserWrapper {
             throws CameraAccessException {
         try {
             return mRemoteDevice.createStream(outputConfiguration);
-        } catch (ServiceSpecificException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
-        } catch (RemoteException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
+        } catch (Throwable t) {
+            CameraManager.throwAsPublicException(t);
+            throw new UnsupportedOperationException("Unexpected exception", t);
         }
     }
 
@@ -151,50 +144,45 @@ public class ICameraDeviceUserWrapper {
             throws CameraAccessException {
         try {
             return mRemoteDevice.createInputStream(width, height, format, isMultiResolution);
-        } catch (ServiceSpecificException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
-        } catch (RemoteException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
+        } catch (Throwable t) {
+            CameraManager.throwAsPublicException(t);
+            throw new UnsupportedOperationException("Unexpected exception", t);
         }
     }
 
     public Surface getInputSurface() throws CameraAccessException {
         try {
             return mRemoteDevice.getInputSurface();
-        } catch (ServiceSpecificException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
-        } catch (RemoteException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
+        } catch (Throwable t) {
+            CameraManager.throwAsPublicException(t);
+            throw new UnsupportedOperationException("Unexpected exception", t);
         }
     }
 
     public CameraMetadataNative createDefaultRequest(int templateId) throws CameraAccessException {
         try {
             return mRemoteDevice.createDefaultRequest(templateId);
-        } catch (ServiceSpecificException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
-        } catch (RemoteException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
+        } catch (Throwable t) {
+            CameraManager.throwAsPublicException(t);
+            throw new UnsupportedOperationException("Unexpected exception", t);
         }
     }
 
     public CameraMetadataNative getCameraInfo() throws CameraAccessException {
         try {
             return mRemoteDevice.getCameraInfo();
-        } catch (ServiceSpecificException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
-        } catch (RemoteException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
+        } catch (Throwable t) {
+            CameraManager.throwAsPublicException(t);
+            throw new UnsupportedOperationException("Unexpected exception", t);
         }
     }
 
     public void waitUntilIdle() throws CameraAccessException {
         try {
             mRemoteDevice.waitUntilIdle();
-        } catch (ServiceSpecificException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
-        } catch (RemoteException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
+        } catch (Throwable t) {
+            CameraManager.throwAsPublicException(t);
+            throw new UnsupportedOperationException("Unexpected exception", t);
         }
     }
 
@@ -220,40 +208,36 @@ public class ICameraDeviceUserWrapper {
     public long flush() throws CameraAccessException {
         try {
             return mRemoteDevice.flush();
-        } catch (ServiceSpecificException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
-        } catch (RemoteException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
+        } catch (Throwable t) {
+            CameraManager.throwAsPublicException(t);
+            throw new UnsupportedOperationException("Unexpected exception", t);
         }
     }
 
     public void prepare(int streamId) throws CameraAccessException {
         try {
             mRemoteDevice.prepare(streamId);
-        } catch (ServiceSpecificException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
-        } catch (RemoteException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
+        } catch (Throwable t) {
+            CameraManager.throwAsPublicException(t);
+            throw new UnsupportedOperationException("Unexpected exception", t);
         }
     }
 
     public void tearDown(int streamId) throws CameraAccessException {
         try {
             mRemoteDevice.tearDown(streamId);
-        } catch (ServiceSpecificException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
-        } catch (RemoteException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
+        } catch (Throwable t) {
+            CameraManager.throwAsPublicException(t);
+            throw new UnsupportedOperationException("Unexpected exception", t);
         }
     }
 
     public void prepare2(int maxCount, int streamId) throws CameraAccessException {
         try {
             mRemoteDevice.prepare2(maxCount, streamId);
-        } catch (ServiceSpecificException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
-        } catch (RemoteException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
+        } catch (Throwable t) {
+            CameraManager.throwAsPublicException(t);
+            throw new UnsupportedOperationException("Unexpected exception", t);
         }
     }
 
@@ -261,10 +245,9 @@ public class ICameraDeviceUserWrapper {
             throws CameraAccessException {
         try {
             mRemoteDevice.updateOutputConfiguration(streamId, config);
-        } catch (ServiceSpecificException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
-        } catch (RemoteException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
+        } catch (Throwable t) {
+            CameraManager.throwAsPublicException(t);
+            throw new UnsupportedOperationException("Unexpected exception", t);
         }
     }
 
@@ -272,10 +255,9 @@ public class ICameraDeviceUserWrapper {
             int[] offlineOutputIds) throws CameraAccessException {
         try {
             return mRemoteDevice.switchToOffline(cbs, offlineOutputIds);
-        } catch (ServiceSpecificException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
-        } catch (RemoteException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
+        } catch (Throwable t) {
+            CameraManager.throwAsPublicException(t);
+            throw new UnsupportedOperationException("Unexpected exception", t);
         }
     }
 
@@ -283,30 +265,27 @@ public class ICameraDeviceUserWrapper {
             throws CameraAccessException {
         try {
             mRemoteDevice.finalizeOutputConfigurations(streamId, deferredConfig);
-        } catch (ServiceSpecificException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
-        } catch (RemoteException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
+        } catch (Throwable t) {
+            CameraManager.throwAsPublicException(t);
+            throw new UnsupportedOperationException("Unexpected exception", t);
         }
     }
 
     public void setCameraAudioRestriction(int mode) throws CameraAccessException {
         try {
             mRemoteDevice.setCameraAudioRestriction(mode);
-        } catch (ServiceSpecificException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
-        } catch (RemoteException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
+        } catch (Throwable t) {
+            CameraManager.throwAsPublicException(t);
+            throw new UnsupportedOperationException("Unexpected exception", t);
         }
     }
 
     public int getGlobalAudioRestriction() throws CameraAccessException {
         try {
             return mRemoteDevice.getGlobalAudioRestriction();
-        } catch (ServiceSpecificException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
-        } catch (RemoteException e) {
-            throw ExceptionUtils.throwAsPublicException(e);
+        } catch (Throwable t) {
+            CameraManager.throwAsPublicException(t);
+            throw new UnsupportedOperationException("Unexpected exception", t);
         }
     }
 

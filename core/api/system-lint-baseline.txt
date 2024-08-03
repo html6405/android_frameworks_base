@@ -541,10 +541,6 @@ ListenerLast: android.telephony.satellite.SatelliteManager#stopSatelliteTransmis
     Listeners should always be at end of argument list (method `stopSatelliteTransmissionUpdates`)
 
 
-MethodNameUnits: android.hardware.camera2.extension.CameraOutputSurface#getColorSpace():
-    Expected method name units to be `Bytes`, was `Space` in `getColorSpace`
-
-
 MissingGetterMatchingBuilder: android.service.voice.HotwordTrainingData.Builder#addTrainingAudio(android.service.voice.HotwordTrainingAudio):
     android.service.voice.HotwordTrainingData does not declare a `getTrainingAudios()` method matching method android.service.voice.HotwordTrainingData.Builder.addTrainingAudio(android.service.voice.HotwordTrainingAudio)
 MissingGetterMatchingBuilder: android.telecom.CallScreeningService.CallResponse.Builder#setShouldScreenCallViaAudioProcessing(boolean):
@@ -1921,8 +1917,6 @@ UnflaggedApi: android.Manifest.permission#ACCESS_SMARTSPACE:
     New API must be flagged with @FlaggedApi: field android.Manifest.permission.ACCESS_SMARTSPACE
 UnflaggedApi: android.Manifest.permission#ALWAYS_UPDATE_WALLPAPER:
     New API must be flagged with @FlaggedApi: field android.Manifest.permission.ALWAYS_UPDATE_WALLPAPER
-UnflaggedApi: android.Manifest.permission#CAMERA_HEADLESS_SYSTEM_USER:
-    New API must be flagged with @FlaggedApi: field android.Manifest.permission.CAMERA_HEADLESS_SYSTEM_USER
 UnflaggedApi: android.Manifest.permission#KEYPHRASE_ENROLLMENT_APPLICATION:
     New API must be flagged with @FlaggedApi: field android.Manifest.permission.KEYPHRASE_ENROLLMENT_APPLICATION
 UnflaggedApi: android.Manifest.permission#LAUNCH_PERMISSION_SETTINGS:

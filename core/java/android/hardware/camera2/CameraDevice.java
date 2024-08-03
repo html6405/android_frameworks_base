@@ -16,11 +16,9 @@
 
 package android.hardware.camera2;
 
-import android.annotation.CallbackExecutor;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.hardware.camera2.params.ExtensionSessionConfiguration;
 import android.hardware.camera2.params.InputConfiguration;
@@ -34,7 +32,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Executor;
 
 /**
  * <p>The CameraDevice class is a representation of a single camera connected to an
@@ -543,6 +540,14 @@ public abstract class CameraDevice implements AutoCloseable {
      *   {@link StreamConfigurationMap#getOutputSizes(Class) getOutputSizes(MediaRecorder.class)},
      *   or configuring it to use one of the supported
      *   {@link android.media.CamcorderProfile CamcorderProfiles}.</li>
+     *
+     * <li>For efficient YUV processing with {@link android.renderscript}:
+     *   Create a RenderScript
+     *   {@link android.renderscript.Allocation Allocation} with a supported YUV
+     *   type, the IO_INPUT flag, and one of the sizes returned by
+     *   {@link StreamConfigurationMap#getOutputSizes(Class) getOutputSizes(Allocation.class)},
+     *   Then obtain the Surface with
+     *   {@link android.renderscript.Allocation#getSurface}.</li>
      *
      * <li>For access to RAW, uncompressed YUV, or compressed JPEG data in the application: Create an
      *   {@link android.media.ImageReader} object with one of the supported output formats given by
@@ -1395,12 +1400,8 @@ public abstract class CameraDevice implements AutoCloseable {
      * {@link android.hardware.camera2.params.MandatoryStreamCombination} are better suited for this
      * purpose.</p>
      *
-     * <p><b>NOTE:</b>
-     * For apps targeting {@link android.os.Build.VERSION_CODES#VANILLA_ICE_CREAM} and above,
-     * this method will ensure session parameters set through calls to
-     * {@link SessionConfiguration#setSessionParameters} are also supported if the Camera Device
-     * supports it. For apps targeting {@link android.os.Build.VERSION_CODES#UPSIDE_DOWN_CAKE} and
-     * below, session parameters will be ignored.</p>
+     * <p>Note that session parameters will be ignored and calls to
+     * {@link SessionConfiguration#setSessionParameters} are not required.</p>
      *
      * @return {@code true} if the given session configuration is supported by the camera device
      *         {@code false} otherwise.

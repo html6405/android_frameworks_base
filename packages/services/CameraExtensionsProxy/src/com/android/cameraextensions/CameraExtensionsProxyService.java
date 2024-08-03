@@ -930,38 +930,6 @@ public class CameraExtensionsProxyService extends Service {
 
             return false;
         }
-
-        @Override
-        public CameraMetadataNative getAvailableCharacteristicsKeyValues(String cameraId) {
-            if (GET_API_SUPPORTED) {
-                List<Pair<CameraCharacteristics.Key, Object>> entries =
-                        mAdvancedExtender.getAvailableCharacteristicsKeyValues();
-
-                if (entries == null || entries.isEmpty()) {
-                    throw new RuntimeException("A valid set of key/value pairs are required that "
-                            + "are supported by the extension.");
-                }
-
-                CameraMetadataNative ret = new CameraMetadataNative();
-                long vendorId = mMetadataVendorIdMap.containsKey(cameraId)
-                        ? mMetadataVendorIdMap.get(cameraId) : Long.MAX_VALUE;
-                ret.setVendorId(vendorId);
-                int[] characteristicsKeyTags = new int[entries.size()];
-                int i = 0;
-                for (Pair<CameraCharacteristics.Key, Object> entry : entries) {
-                    int tag = CameraMetadataNative.getTag(entry.first.getName(), vendorId);
-                    characteristicsKeyTags[i++] = tag;
-                    ret.set(entry.first, entry.second);
-                }
-                ret.set(CameraCharacteristics.REQUEST_AVAILABLE_CHARACTERISTICS_KEYS,
-                        characteristicsKeyTags);
-
-                return ret;
-            }
-
-            return null;
-        }
-
     }
 
     private class CaptureCallbackStub implements SessionProcessorImpl.CaptureCallback {
@@ -1011,15 +979,13 @@ public class CameraExtensionsProxyService extends Service {
 
         @Override
         public void onCaptureFailed(int captureSequenceId, int reason) {
-            if (Flags.concertMode()) {
-                if (mCaptureCallback != null) {
-                    try {
-                        mCaptureCallback.onCaptureProcessFailed(captureSequenceId, reason);
-                    } catch (RemoteException e) {
-                        Log.e(TAG, "Failed to notify capture failure due to remote " +
-                                "exception!");
-                    }
-                }
+            if (mCaptureCallback != null) {
+                /*try {
+                    mCaptureCallback.onCaptureProcessFailed(captureSequenceId, reason);
+                } catch (RemoteException e) {
+                    Log.e(TAG, "Failed to notify capture failure due to remote " +
+                            "exception!");
+                }*/
             }
         }
 
@@ -2267,11 +2233,6 @@ public class CameraExtensionsProxyService extends Service {
             ret.size.height = imageReaderOutputConfig.getSize().getHeight();
             ret.imageFormat = imageReaderOutputConfig.getImageFormat();
             ret.capacity = imageReaderOutputConfig.getMaxImages();
-            if (EFV_SUPPORTED) {
-                ret.usage = imageReaderOutputConfig.getUsage();
-            } else {
-                ret.usage = 0;
-            }
         } else if (output instanceof MultiResolutionImageReaderOutputConfigImpl) {
             MultiResolutionImageReaderOutputConfigImpl multiResReaderConfig =
                     (MultiResolutionImageReaderOutputConfigImpl) output;

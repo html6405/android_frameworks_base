@@ -26,7 +26,6 @@ parcelable CameraOutputConfig
     Surface surface;
     int imageFormat;
     int capacity;
-    long usage;
 
     const int TYPE_SURFACE = 0;
     const int TYPE_IMAGEREADER = 1;

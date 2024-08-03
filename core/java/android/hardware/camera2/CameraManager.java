@@ -31,7 +31,6 @@ import android.hardware.CameraInfo;
 import android.hardware.CameraStatus;
 import android.hardware.ICameraService;
 import android.hardware.ICameraServiceListener;
-import android.hardware.camera2.CameraDevice.StateCallback;
 import android.hardware.camera2.impl.CameraDeviceImpl;
 import android.hardware.camera2.impl.CameraMetadataNative;
 import android.hardware.camera2.params.ExtensionSessionConfiguration;
@@ -41,10 +40,10 @@ import android.hardware.camera2.params.SessionConfiguration;
 import android.hardware.camera2.params.StreamConfiguration;
 import android.hardware.camera2.utils.CameraIdAndSessionConfiguration;
 import android.hardware.camera2.utils.ConcurrentCameraIdCombination;
-import android.hardware.camera2.utils.ExceptionUtils;
 import android.hardware.devicestate.DeviceStateManager;
 import android.hardware.display.DisplayManager;
 import android.os.Binder;
+import android.os.DeadObjectException;
 import android.os.Handler;
 import android.os.HandlerExecutor;
 import android.os.HandlerThread;
@@ -540,7 +539,7 @@ public final class CameraManager {
             ServiceSpecificException sse = new ServiceSpecificException(
                     ICameraService.ERROR_DISCONNECTED,
                     "Camera service is currently unavailable");
-            throw ExceptionUtils.throwAsPublicException(sse);
+            throwAsPublicException(sse);
         }
 
         return multiResolutionStreamConfigurations;
@@ -628,7 +627,7 @@ public final class CameraManager {
                     characteristics = new CameraCharacteristics(info);
                 }
             } catch (ServiceSpecificException e) {
-                throw ExceptionUtils.throwAsPublicException(e);
+                throwAsPublicException(e);
             } catch (RemoteException e) {
                 // Camera service died - act as if the camera was disconnected
                 throw new CameraAccessException(CameraAccessException.CAMERA_DISCONNECTED,
@@ -761,11 +760,11 @@ public final class CameraManager {
                             e.errorCode == ICameraService.ERROR_DISCONNECTED ||
                             e.errorCode == ICameraService.ERROR_CAMERA_IN_USE) {
                         // Per API docs, these failures call onError and throw
-                        throw ExceptionUtils.throwAsPublicException(e);
+                        throwAsPublicException(e);
                     }
                 } else {
                     // Unexpected failure - rethrow
-                    throw ExceptionUtils.throwAsPublicException(e);
+                    throwAsPublicException(e);
                 }
             } catch (RemoteException e) {
                 // Camera service died - act as if it's a CAMERA_DISCONNECTED case
@@ -773,7 +772,7 @@ public final class CameraManager {
                     ICameraService.ERROR_DISCONNECTED,
                     "Camera service is currently unavailable");
                 deviceImpl.setRemoteFailure(sse);
-                throw ExceptionUtils.throwAsPublicException(sse);
+                throwAsPublicException(sse);
             }
 
             // TODO: factor out callback to be non-nested, then move setter to constructor
@@ -1974,7 +1973,7 @@ public final class CameraManager {
                 try {
                     cameraService.setTorchMode(cameraId, enabled, mTorchClientBinder);
                 } catch(ServiceSpecificException e) {
-                    Log.w(TAG, e.getMessage());
+                    throwAsPublicException(e);
                 } catch (RemoteException e) {
                     throw new CameraAccessException(CameraAccessException.CAMERA_DISCONNECTED,
                             "Camera service is currently unavailable");

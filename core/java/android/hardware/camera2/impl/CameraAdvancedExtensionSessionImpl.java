@@ -219,8 +219,7 @@ public final class CameraAdvancedExtensionSessionImpl extends CameraExtensionSes
             @Nullable Surface postviewSurface,
             @NonNull CameraExtensionSession.StateCallback callback, @NonNull Executor executor,
             int sessionId,
-            @NonNull IBinder token,
-            int extension) {
+            @NonNull IBinder token) {
         mContext = ctx;
         mAdvancedExtender = extender;
         mCameraDevice = cameraDevice;
@@ -259,7 +258,7 @@ public final class CameraAdvancedExtensionSessionImpl extends CameraExtensionSes
         List<CameraOutputConfig> outputConfigs = sessionConfig.outputConfigs;
         ArrayList<OutputConfiguration> outputList = new ArrayList<>();
         for (CameraOutputConfig output : outputConfigs) {
-            Surface outputSurface = initializeSurface(output);
+            Surface outputSurface = initializeSurfrace(output);
             if (outputSurface == null) {
                 continue;
             }
@@ -272,7 +271,7 @@ public final class CameraAdvancedExtensionSessionImpl extends CameraExtensionSes
             if ((output.sharedSurfaceConfigs != null) && !output.sharedSurfaceConfigs.isEmpty()) {
                 cameraOutput.enableSurfaceSharing();
                 for (CameraOutputConfig sharedOutputConfig : output.sharedSurfaceConfigs) {
-                    Surface sharedSurface = initializeSurface(sharedOutputConfig);
+                    Surface sharedSurface = initializeSurfrace(sharedOutputConfig);
                     if (sharedSurface == null) {
                         continue;
                     }
@@ -555,9 +554,9 @@ public final class CameraAdvancedExtensionSessionImpl extends CameraExtensionSes
             if (mToken != null) {
                 if (mInitialized || (mCaptureSession != null)) {
                     notifyClose = true;
-                    CameraExtensionCharacteristics.releaseSession(mExtensionType);
+                    CameraExtensionCharacteristics.releaseSession();
                 }
-                CameraExtensionCharacteristics.unregisterClient(mContext, mToken, mExtensionType);
+                CameraExtensionCharacteristics.unregisterClient(mContext, mToken);
             }
             mInitialized = false;
             mToken = null;
@@ -620,8 +619,7 @@ public final class CameraAdvancedExtensionSessionImpl extends CameraExtensionSes
             }
 
             try {
-                CameraExtensionCharacteristics.initializeSession(
-                        mInitializeHandler, mExtensionType);
+                CameraExtensionCharacteristics.initializeSession(mInitializeHandler);
             } catch (RemoteException e) {
                 Log.e(TAG, "Failed to initialize session! Extension service does"
                         + " not respond!");
@@ -1104,7 +1102,7 @@ public final class CameraAdvancedExtensionSessionImpl extends CameraExtensionSes
         return ret;
     }
 
-    private Surface initializeSurface(CameraOutputConfig output) {
+    private Surface initializeSurfrace(CameraOutputConfig output) {
         switch(output.type) {
             case CameraOutputConfig.TYPE_SURFACE:
                 if (output.surface == null) {
@@ -1121,8 +1119,7 @@ public final class CameraAdvancedExtensionSessionImpl extends CameraExtensionSes
                     return null;
                 }
                 ImageReader reader = ImageReader.newInstance(output.size.width,
-                        output.size.height, output.imageFormat, output.capacity,
-                        output.usage);
+                        output.size.height, output.imageFormat, output.capacity);
                 mReaderMap.put(output.outputId.id, reader);
                 return reader.getSurface();
             case CameraOutputConfig.TYPE_MULTIRES_IMAGEREADER:

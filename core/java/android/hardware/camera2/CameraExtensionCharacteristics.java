@@ -131,10 +131,10 @@ public final class CameraExtensionCharacteristics {
      */
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(flag = true, value = {EXTENSION_AUTOMATIC,
-            EXTENSION_FACE_RETOUCH,
-            EXTENSION_BOKEH,
-            EXTENSION_HDR,
-            EXTENSION_NIGHT})
+                EXTENSION_FACE_RETOUCH,
+                EXTENSION_BOKEH,
+                EXTENSION_HDR,
+                EXTENSION_NIGHT})
     public @interface Extension {
     }
 
@@ -168,14 +168,14 @@ public final class CameraExtensionCharacteristics {
      * @hide
      */
     public CameraExtensionCharacteristics(Context context, String cameraId,
-                                          CameraCharacteristics chars) {
+            CameraCharacteristics chars) {
         mContext = context;
         mCameraId = cameraId;
         mChars = chars;
     }
 
     private static ArrayList<Size> getSupportedSizes(List<SizeList> sizesList,
-                                                     Integer format) {
+            Integer format) {
         ArrayList<Size> ret = new ArrayList<>();
         if ((sizesList != null) && (!sizesList.isEmpty())) {
             for (SizeList entry : sizesList) {
@@ -206,7 +206,7 @@ public final class CameraExtensionCharacteristics {
     }
 
     private static List<Size> generateJpegSupportedSizes(List<SizeList> sizesList,
-                                                         StreamConfigurationMap streamMap) {
+            StreamConfigurationMap streamMap) {
         ArrayList<Size> extensionSizes = getSupportedSizes(sizesList, ImageFormat.YUV_420_888);
         HashSet<Size> supportedSizes = extensionSizes.isEmpty() ? new HashSet<>(Arrays.asList(
                 streamMap.getOutputSizes(ImageFormat.YUV_420_888))) : new HashSet<>(extensionSizes);
@@ -259,17 +259,17 @@ public final class CameraExtensionCharacteristics {
                 Intent intent = new Intent();
                 intent.setClassName(PROXY_PACKAGE_NAME, PROXY_SERVICE_NAME);
                 String vendorProxyPackage = SystemProperties.get(
-                        "ro.vendor.camera.extensions.package");
+                    "ro.vendor.camera.extensions.package");
                 String vendorProxyService = SystemProperties.get(
-                        "ro.vendor.camera.extensions.service");
+                    "ro.vendor.camera.extensions.service");
                 if (!vendorProxyPackage.isEmpty() && !vendorProxyService.isEmpty()) {
-                    Log.v(TAG,
-                            "Choosing the vendor camera extensions proxy package: "
-                                    + vendorProxyPackage);
-                    Log.v(TAG,
-                            "Choosing the vendor camera extensions proxy service: "
-                                    + vendorProxyService);
-                    intent.setClassName(vendorProxyPackage, vendorProxyService);
+                  Log.v(TAG,
+                      "Choosing the vendor camera extensions proxy package: "
+                      + vendorProxyPackage);
+                  Log.v(TAG,
+                      "Choosing the vendor camera extensions proxy service: "
+                      + vendorProxyService);
+                  intent.setClassName(vendorProxyPackage, vendorProxyService);
                 }
                 mInitFuture = new InitializerFuture();
                 mConnection = new ServiceConnection() {
@@ -294,7 +294,7 @@ public final class CameraExtensionCharacteristics {
                     }
                 };
                 ctx.bindService(intent, Context.BIND_AUTO_CREATE | Context.BIND_IMPORTANT |
-                                Context.BIND_ABOVE_CLIENT | Context.BIND_NOT_VISIBLE,
+                        Context.BIND_ABOVE_CLIENT | Context.BIND_NOT_VISIBLE,
                         android.os.AsyncTask.THREAD_POOL_EXECUTOR, mConnection);
 
                 try {
@@ -493,7 +493,7 @@ public final class CameraExtensionCharacteristics {
      * @hide
      */
     public static boolean isExtensionSupported(String cameraId, int extensionType,
-                                               CameraCharacteristics chars) {
+            CameraCharacteristics chars) {
         if (areAdvancedExtensionsSupported()) {
             try {
                 IAdvancedExtenderImpl extender = initializeAdvancedExtension(extensionType);
@@ -674,7 +674,7 @@ public final class CameraExtensionCharacteristics {
      */
     @NonNull
     public List<Size> getPostviewSupportedSizes(@Extension int extension,
-                                                @NonNull Size captureSize, int format) {
+            @NonNull Size captureSize, int format) {
         final IBinder token = new Binder(TAG + "#getPostviewSupportedSizes:" + mCameraId);
         boolean success = registerClient(mContext, token);
         if (!success) {
@@ -705,7 +705,7 @@ public final class CameraExtensionCharacteristics {
                 IAdvancedExtenderImpl extender = initializeAdvancedExtension(extension);
                 extender.init(mCameraId);
                 return generateSupportedSizes(extender.getSupportedPostviewResolutions(
-                        sz), format, streamMap);
+                    sz), format, streamMap);
             } else {
                 Pair<IPreviewExtenderImpl, IImageCaptureExtenderImpl> extenders =
                         initializeExtension(extension);
@@ -728,7 +728,7 @@ public final class CameraExtensionCharacteristics {
                     // processed YUV_420 buffers.
                     return generateJpegSupportedSizes(
                             extenders.second.getSupportedPostviewResolutions(sz),
-                            streamMap);
+                                    streamMap);
                 } else {
                     throw new IllegalArgumentException("Unsupported format: " + format);
                 }
@@ -768,7 +768,7 @@ public final class CameraExtensionCharacteristics {
      */
     @NonNull
     public <T> List<Size> getExtensionSupportedSizes(@Extension int extension,
-                                                     @NonNull Class<T> klass) {
+            @NonNull Class<T> klass) {
         if (!isOutputSupportedFor(klass)) {
             return new ArrayList<>();
         }
@@ -912,7 +912,7 @@ public final class CameraExtensionCharacteristics {
      *                                  {@link ImageFormat#YUV_420_888}; or unsupported extension.
      */
     public @Nullable Range<Long> getEstimatedCaptureLatencyRangeMillis(@Extension int extension,
-                                                                       @NonNull Size captureOutputSize, @ImageFormat.Format int format) {
+            @NonNull Size captureOutputSize, @ImageFormat.Format int format) {
         switch (format) {
             case ImageFormat.YUV_420_888:
             case ImageFormat.JPEG:

@@ -16,7 +16,6 @@
 
 package android.hardware.camera2;
 
-import android.annotation.FlaggedApi;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.compat.annotation.UnsupportedAppUsage;
@@ -28,8 +27,6 @@ import android.hardware.camera2.utils.TypeReference;
 import android.os.Build;
 import android.util.Log;
 import android.util.Rational;
-
-import com.android.internal.camera.flags.Flags;
 
 import java.util.List;
 
@@ -4009,14 +4006,12 @@ public class CaptureResult extends CameraMetadata<CaptureResult.Key<?>> {
      * </ul>
      * <p>should be interpreted in the effective after raw crop field-of-view coordinate system.
      * In this coordinate system,
-     * {{@link CameraCharacteristics#SENSOR_INFO_PRE_CORRECTION_ACTIVE_ARRAY_SIZE android.sensor.info.preCorrectionActiveArraySize}.left,
-     *  {@link CameraCharacteristics#SENSOR_INFO_PRE_CORRECTION_ACTIVE_ARRAY_SIZE android.sensor.info.preCorrectionActiveArraySize}.top} corresponds to the
+     * {preCorrectionActiveArraySize.left, preCorrectionActiveArraySize.top} corresponds to the
      * the top left corner of the cropped RAW frame and
-     * {{@link CameraCharacteristics#SENSOR_INFO_PRE_CORRECTION_ACTIVE_ARRAY_SIZE android.sensor.info.preCorrectionActiveArraySize}.right,
-     *  {@link CameraCharacteristics#SENSOR_INFO_PRE_CORRECTION_ACTIVE_ARRAY_SIZE android.sensor.info.preCorrectionActiveArraySize}.bottom} corresponds to
+     * {preCorrectionActiveArraySize.right, preCorrectionActiveArraySize.bottom} corresponds to
      * the bottom right corner. Client applications must use the values of the keys
      * in the CaptureResult metadata if present.</p>
-     * <p>Crop regions {@link CaptureRequest#SCALER_CROP_REGION android.scaler.cropRegion}, AE/AWB/AF regions and face coordinates still
+     * <p>Crop regions (android.scaler.CropRegion), AE/AWB/AF regions and face coordinates still
      * use the {@link CameraCharacteristics#SENSOR_INFO_ACTIVE_ARRAY_SIZE android.sensor.info.activeArraySize} coordinate system as usual.</p>
      * <p><b>Units</b>: Pixel coordinates relative to
      * {@link CameraCharacteristics#SENSOR_INFO_ACTIVE_ARRAY_SIZE android.sensor.info.activeArraySize} or
@@ -4028,7 +4023,6 @@ public class CaptureResult extends CameraMetadata<CaptureResult.Key<?>> {
      * @see CameraCharacteristics#LENS_INTRINSIC_CALIBRATION
      * @see CameraCharacteristics#LENS_POSE_ROTATION
      * @see CameraCharacteristics#LENS_POSE_TRANSLATION
-     * @see CaptureRequest#SCALER_CROP_REGION
      * @see CameraCharacteristics#SENSOR_INFO_ACTIVE_ARRAY_SIZE
      * @see CameraCharacteristics#SENSOR_INFO_PRE_CORRECTION_ACTIVE_ARRAY_SIZE
      * @see CaptureResult#STATISTICS_HOT_PIXEL_MAP
@@ -5689,63 +5683,6 @@ public class CaptureResult extends CameraMetadata<CaptureResult.Key<?>> {
     @NonNull
     public static final Key<Integer> DISTORTION_CORRECTION_MODE =
             new Key<Integer>("android.distortionCorrection.mode", int.class);
-
-    /**
-     * <p>Contains the extension type of the currently active extension</p>
-     * <p>The capture result will only be supported and included by camera extension
-     * {@link android.hardware.camera2.CameraExtensionSession sessions}.
-     * In case the extension session was configured to use
-     * {@link android.hardware.camera2.CameraExtensionCharacteristics#EXTENSION_AUTOMATIC AUTO},
-     * then the extension type value will indicate the currently active extension like
-     * {@link android.hardware.camera2.CameraExtensionCharacteristics#EXTENSION_HDR HDR},
-     * {@link android.hardware.camera2.CameraExtensionCharacteristics#EXTENSION_NIGHT NIGHT} etc.
-     * , and will never return
-     * {@link android.hardware.camera2.CameraExtensionCharacteristics#EXTENSION_AUTOMATIC AUTO}.
-     * In case the extension session was configured to use an extension different from
-     * {@link android.hardware.camera2.CameraExtensionCharacteristics#EXTENSION_AUTOMATIC AUTO},
-     * then the result type will always match with the configured extension type.</p>
-     * <p><b>Range of valid values:</b><br>
-     * Extension type value listed in
-     * {@link android.hardware.camera2.CameraExtensionCharacteristics }</p>
-     * <p><b>Optional</b> - The value for this key may be {@code null} on some devices.</p>
-     */
-    @PublicKey
-    @NonNull
-    public static final Key<Integer> EXTENSION_CURRENT_TYPE =
-            new Key<Integer>("android.extension.currentType", int.class);
-
-    /**
-     * <p>Strength of the extension post-processing effect</p>
-     * <p>This control allows Camera extension clients to configure the strength of the applied
-     * extension effect. Strength equal to 0 means that the extension must not apply any
-     * post-processing and return a regular captured frame. Strength equal to 100 is the
-     * maximum level of post-processing. Values between 0 and 100 will have different effect
-     * depending on the extension type as described below:</p>
-     * <ul>
-     * <li>{@link android.hardware.camera2.CameraExtensionCharacteristics#EXTENSION_BOKEH BOKEH} -
-     * the strength is expected to control the amount of blur.</li>
-     * <li>{@link android.hardware.camera2.CameraExtensionCharacteristics#EXTENSION_HDR HDR} and
-     * {@link android.hardware.camera2.CameraExtensionCharacteristics#EXTENSION_NIGHT NIGHT} -
-     * the strength can control the amount of images fused and the brightness of the final image.</li>
-     * <li>{@link android.hardware.camera2.CameraExtensionCharacteristics#EXTENSION_FACE_RETOUCH FACE_RETOUCH} -
-     * the strength value will control the amount of cosmetic enhancement and skin
-     * smoothing.</li>
-     * </ul>
-     * <p>The control will be supported if the capture request key is part of the list generated by
-     * {@link android.hardware.camera2.CameraExtensionCharacteristics#getAvailableCaptureRequestKeys }.
-     * The control is only defined and available to clients sending capture requests via
-     * {@link android.hardware.camera2.CameraExtensionSession }.
-     * If the client doesn't specify the extension strength value, then a default value will
-     * be set by the extension. Clients can retrieve the default value by checking the
-     * corresponding capture result.</p>
-     * <p><b>Range of valid values:</b><br>
-     * 0 - 100</p>
-     * <p><b>Optional</b> - The value for this key may be {@code null} on some devices.</p>
-     */
-    @PublicKey
-    @NonNull
-    public static final Key<Integer> EXTENSION_STRENGTH =
-            new Key<Integer>("android.extension.strength", int.class);
 
     /*~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~
      * End generated code

@@ -35,20 +35,19 @@ public class VirtualCameraStreamConfigTest {
 
     private static final int VGA_WIDTH = 640;
     private static final int VGA_HEIGHT = 480;
-    private static final int MAX_FPS_1 = 30;
 
     private static final int QVGA_WIDTH = 320;
     private static final int QVGA_HEIGHT = 240;
-    private static final int MAX_FPS_2 = 60;
 
     @Test
     public void testEquals() {
         VirtualCameraStreamConfig vgaYuvStreamConfig = new VirtualCameraStreamConfig(VGA_WIDTH,
-                VGA_HEIGHT, ImageFormat.YUV_420_888, MAX_FPS_1);
+                VGA_HEIGHT,
+                ImageFormat.YUV_420_888);
         VirtualCameraStreamConfig qvgaYuvStreamConfig = new VirtualCameraStreamConfig(QVGA_WIDTH,
-                QVGA_HEIGHT, ImageFormat.YUV_420_888, MAX_FPS_2);
+                QVGA_HEIGHT, ImageFormat.YUV_420_888);
         VirtualCameraStreamConfig vgaRgbaStreamConfig = new VirtualCameraStreamConfig(VGA_WIDTH,
-                VGA_HEIGHT, PixelFormat.RGBA_8888, MAX_FPS_1);
+                VGA_HEIGHT, PixelFormat.RGBA_8888);
 
         new EqualsTester()
                 .addEqualityGroup(vgaYuvStreamConfig, reparcel(vgaYuvStreamConfig))
@@ -67,4 +66,6 @@ public class VirtualCameraStreamConfigTest {
             parcel.recycle();
         }
     }
+
+
 }

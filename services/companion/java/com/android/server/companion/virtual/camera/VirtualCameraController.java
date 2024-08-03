@@ -78,10 +78,7 @@ public final class VirtualCameraController implements IBinder.DeathRecipient {
      *
      * @param cameraConfig The {@link VirtualCameraConfig} sent by the client.
      */
-    public void registerCamera(@NonNull VirtualCameraConfig cameraConfig,
-            AttributionSource attributionSource) {
-        checkConfigByPolicy(cameraConfig);
-
+    public void registerCamera(@NonNull VirtualCameraConfig cameraConfig) {
         connectVirtualCameraServiceIfNeeded();
 
         try {
@@ -99,11 +96,6 @@ public final class VirtualCameraController implements IBinder.DeathRecipient {
             }
         } catch (RemoteException e) {
             e.rethrowFromSystemServer();
-        }
-        if (android.companion.virtualdevice.flags.Flags.metricsCollection()) {
-            Counter.logIncrementWithUid(
-                    "virtual_devices.value_virtual_camera_created_count",
-                    attributionSource.getUid());
         }
     }
 
@@ -190,29 +182,6 @@ public final class VirtualCameraController implements IBinder.DeathRecipient {
                 fout.printf("%s token: %s\n", indent, descriptor.mConfig);
             }
         }
-    }
-
-    private void checkConfigByPolicy(VirtualCameraConfig config) {
-        if (mCameraPolicy == DEVICE_POLICY_DEFAULT) {
-            throw new IllegalArgumentException(
-                    "Cannot create virtual camera with DEVICE_POLICY_DEFAULT for "
-                            + "POLICY_TYPE_CAMERA");
-        } else if (isLensFacingAlreadyPresent(config.getLensFacing())) {
-            throw new IllegalArgumentException(
-                    "Only a single virtual camera can be created with lens facing "
-                            + config.getLensFacing());
-        }
-    }
-
-    private boolean isLensFacingAlreadyPresent(int lensFacing) {
-        synchronized (mCameras) {
-            for (CameraDescriptor cameraDescriptor : mCameras.values()) {
-                if (cameraDescriptor.mConfig.getLensFacing() == lensFacing) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     private void connectVirtualCameraServiceIfNeeded() {

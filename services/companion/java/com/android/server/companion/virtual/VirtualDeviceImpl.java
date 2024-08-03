@@ -1032,7 +1032,7 @@ final class VirtualDeviceImpl extends IVirtualDevice.Stub
         if (mVirtualCameraController == null) {
             throw new UnsupportedOperationException("Virtual camera controller is not available");
         }
-        mVirtualCameraController.registerCamera(cameraConfig, mAttributionSource);
+        mVirtualCameraController.registerCamera(cameraConfig);
     }
 
     @Override // Binder call
