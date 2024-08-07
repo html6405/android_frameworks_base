@@ -24,6 +24,4 @@ parcelable OutputSurface
     Surface surface;
     Size size;
     int imageFormat;
-    long dynamicRangeProfile;
-    int colorSpace;
 }
