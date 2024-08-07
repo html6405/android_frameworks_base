@@ -18,6 +18,7 @@ package android.hardware.camera2.extension;
 
 import android.annotation.FlaggedApi;
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureFailure;
@@ -183,8 +184,8 @@ public abstract class SessionProcessor {
          *                   capture results. This is the return value of
          *                   either {@link #startRepeating} or {@link
          *                   #startMultiFrameCapture}.
-         * @param results   Key value map of the supported capture results.
-         *                  Do note that if results 'android.jpeg.quality' and
+         * @param results  The supported capture results. Do note
+         *                  that if results 'android.jpeg.quality' and
          *                  android.jpeg.orientation' are present in the
          *                  process capture input results, then the values
          *                  must also be passed as part of this callback.
@@ -194,7 +195,7 @@ public abstract class SessionProcessor {
          */
         @FlaggedApi(Flags.FLAG_CONCERT_MODE)
         void onCaptureCompleted(long shutterTimestamp, int requestId,
-                @NonNull Map<CaptureResult.Key, Object> results);
+                @NonNull CaptureResult results);
     }
 
     /**
@@ -414,7 +415,7 @@ public abstract class SessionProcessor {
         public int startRepeating(ICaptureCallback callback) throws RemoteException {
             return SessionProcessor.this.startRepeating(
                     new HandlerExecutor(new Handler(Looper.getMainLooper())),
-                    new CaptureCallbackImpl(callback, mVendorId));
+                    new CaptureCallbackImpl(callback));
         }
 
         @Override
@@ -427,7 +428,7 @@ public abstract class SessionProcessor {
                 throws RemoteException {
             return SessionProcessor.this.startMultiFrameCapture(
                     new HandlerExecutor(new Handler(Looper.getMainLooper())),
-                    new CaptureCallbackImpl(callback, mVendorId));
+                    new CaptureCallbackImpl(callback));
         }
 
         @Override
@@ -440,7 +441,7 @@ public abstract class SessionProcessor {
                 throws RemoteException {
             return SessionProcessor.this.startTrigger(captureRequest,
                     new HandlerExecutor(new Handler(Looper.getMainLooper())),
-                    new CaptureCallbackImpl(callback, mVendorId));
+                    new CaptureCallbackImpl(callback));
         }
 
         @Override
@@ -452,11 +453,9 @@ public abstract class SessionProcessor {
 
     private static final class CaptureCallbackImpl implements CaptureCallback {
         private final ICaptureCallback mCaptureCallback;
-        private long mVendorId = -1;
 
-        CaptureCallbackImpl(@NonNull ICaptureCallback cb, long vendorId) {
+        CaptureCallbackImpl(@NonNull ICaptureCallback cb) {
             mCaptureCallback = cb;
-            mVendorId = vendorId;
         }
 
         @Override
@@ -506,14 +505,10 @@ public abstract class SessionProcessor {
 
         @Override
         public void onCaptureCompleted(long shutterTimestamp, int requestId,
-                Map<CaptureResult.Key, Object> results) {
-            CameraMetadataNative captureResults = new CameraMetadataNative();
-            captureResults.setVendorId(mVendorId);
-            for (Map.Entry<CaptureResult.Key, Object> entry : results.entrySet()) {
-                captureResults.set(entry.getKey(), entry.getValue());
-            }
+                @androidx.annotation.NonNull CaptureResult results) {
             try {
-                mCaptureCallback.onCaptureCompleted(shutterTimestamp, requestId, captureResults);
+                mCaptureCallback.onCaptureCompleted(shutterTimestamp, requestId,
+                        results.getNativeCopy());
             } catch (RemoteException e) {
                 Log.e(TAG, "Failed to notify capture complete due to remote exception!");
             }
