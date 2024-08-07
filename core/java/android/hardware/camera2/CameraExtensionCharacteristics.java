@@ -808,11 +808,13 @@ public final class CameraExtensionCharacteristics {
                 extender.init(mCameraId, mCharacteristicsMapNative);
                 CameraMetadataNative metadata =
                         extender.getAvailableCharacteristicsKeyValues(mCameraId);
+                CameraCharacteristics fallbackCharacteristics = mCharacteristicsMap.get(mCameraId);
                 if (metadata == null) {
-                    return null;
+                    return fallbackCharacteristics.get(key);
                 }
                 CameraCharacteristics characteristics = new CameraCharacteristics(metadata);
-                return characteristics.get(key);
+                T value = characteristics.get(key);
+                return value == null ? fallbackCharacteristics.get(key) : value;
             }
         } catch (RemoteException e) {
             Log.e(TAG, "Failed to query the extension for the specified key! Extension "
