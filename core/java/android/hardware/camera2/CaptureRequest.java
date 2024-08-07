@@ -55,8 +55,7 @@ import java.util.Set;
  * capture.</p>
  *
  * <p>CaptureRequests can be created by using a {@link Builder} instance,
- * obtained by calling {@link CameraDevice#createCaptureRequest} or {@link
- * CameraManager#createCaptureRequest}</p>
+ * obtained by calling {@link CameraDevice#createCaptureRequest}</p>
  *
  * <p>CaptureRequests are given to {@link CameraCaptureSession#capture} or
  * {@link CameraCaptureSession#setRepeatingRequest} to capture images from a camera.</p>
@@ -83,7 +82,6 @@ import java.util.Set;
  * @see CameraCaptureSession#setRepeatingBurst
  * @see CameraDevice#createCaptureRequest
  * @see CameraDevice#createReprocessCaptureRequest
- * @see CameraManager#createCaptureRequest
  */
 public final class CaptureRequest extends CameraMetadata<CaptureRequest.Key<?>>
         implements Parcelable {
@@ -795,9 +793,8 @@ public final class CaptureRequest extends CameraMetadata<CaptureRequest.Key<?>>
      * A builder for capture requests.
      *
      * <p>To obtain a builder instance, use the
-     * {@link CameraDevice#createCaptureRequest} or {@link CameraManager#createCaptureRequest}
-     * method, which initializes the request fields to one of the templates defined in
-     * {@link CameraDevice}.
+     * {@link CameraDevice#createCaptureRequest} method, which initializes the
+     * request fields to one of the templates defined in {@link CameraDevice}.
      *
      * @see CameraDevice#createCaptureRequest
      * @see CameraDevice#TEMPLATE_PREVIEW
@@ -805,7 +802,6 @@ public final class CaptureRequest extends CameraMetadata<CaptureRequest.Key<?>>
      * @see CameraDevice#TEMPLATE_STILL_CAPTURE
      * @see CameraDevice#TEMPLATE_VIDEO_SNAPSHOT
      * @see CameraDevice#TEMPLATE_MANUAL
-     * @see CameraManager#createCaptureRequest
      */
     public final static class Builder {
 
