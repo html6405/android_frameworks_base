@@ -23,7 +23,6 @@ import android.annotation.SystemApi;
 import android.app.AppOpsManager;
 import android.app.Service;
 import android.content.Intent;
-import android.hardware.camera2.CameraExtensionCharacteristics.Extension;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
@@ -93,7 +92,7 @@ public abstract class CameraExtensionService extends Service {
     @FlaggedApi(Flags.FLAG_CONCERT_MODE)
     @Override
     @NonNull
-    public final IBinder onBind(@Nullable Intent intent) {
+    public IBinder onBind(@Nullable Intent intent) {
         if (mCameraUsageTracker == null) {
             mCameraUsageTracker = new CameraTracker();
         }
@@ -154,21 +153,21 @@ public abstract class CameraExtensionService extends Service {
         }
 
         @Override
-        public IPreviewExtenderImpl initializePreviewExtension(@Extension int extensionType)
+        public IPreviewExtenderImpl initializePreviewExtension(int extensionType)
                 throws RemoteException {
             // Basic Extension API is not supported
             return null;
         }
 
         @Override
-        public IImageCaptureExtenderImpl initializeImageExtension(@Extension int extensionType)
+        public IImageCaptureExtenderImpl initializeImageExtension(int extensionType)
                 throws RemoteException {
             // Basic Extension API is not supported
             return null;
         }
 
         @Override
-        public IAdvancedExtenderImpl initializeAdvancedExtension(@Extension int extensionType)
+        public IAdvancedExtenderImpl initializeAdvancedExtension(int extensionType)
                 throws RemoteException {
             AdvancedExtender extender =  CameraExtensionService.this.onInitializeAdvancedExtension(
                     extensionType);
@@ -206,5 +205,5 @@ public abstract class CameraExtensionService extends Service {
      */
     @FlaggedApi(Flags.FLAG_CONCERT_MODE)
     @NonNull
-    public abstract AdvancedExtender onInitializeAdvancedExtension(@Extension int extensionType);
+    public abstract AdvancedExtender onInitializeAdvancedExtension(int extensionType);
 }
