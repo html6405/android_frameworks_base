@@ -874,11 +874,8 @@ public final class CameraExtensionCharacteristics {
                 Class<CameraCharacteristics.Key<?>> keyTyped =
                         (Class<CameraCharacteristics.Key<?>>) key;
 
-                // Do not include synthetic keys. Including synthetic keys leads to undefined
-                // behavior. This causes inclusion of capabilities that may not be supported in
-                // camera extensions.
                 ret.addAll(chars.getAvailableKeyList(CameraCharacteristics.class, keyTyped, keys,
-                        /*includeSynthetic*/ false));
+                        /*includeSynthetic*/ true));
             }
         } catch (RemoteException e) {
             Log.e(TAG, "Failed to query the extension for all available keys! Extension "
