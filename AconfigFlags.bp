@@ -22,7 +22,6 @@ aconfig_declarations_group {
         "aconfig_mediacodec_flags_java_lib",
         "android.adaptiveauth.flags-aconfig-java",
         "android.app.flags-aconfig-java",
-        "android.app.ondeviceintelligence-aconfig-java",
         "android.app.smartspace.flags-aconfig-java",
         "android.app.usage.flags-aconfig-java",
         "android.app.wearable.flags-aconfig-java",
@@ -543,19 +542,6 @@ aconfig_declarations {
 java_aconfig_library {
     name: "android.media.tv.flags-aconfig-java",
     aconfig_declarations: "android.media.tv.flags-aconfig",
-    defaults: ["framework-minus-apex-aconfig-java-defaults"],
-}
-
-// OnDeviceIntelligence
-aconfig_declarations {
-    name: "android.app.ondeviceintelligence-aconfig",
-    package: "android.app.ondeviceintelligence.flags",
-    srcs: ["core/java/android/app/ondeviceintelligence/flags/ondevice_intelligence.aconfig"],
-}
-
-java_aconfig_library {
-    name: "android.app.ondeviceintelligence-aconfig-java",
-    aconfig_declarations: "android.app.ondeviceintelligence-aconfig",
     defaults: ["framework-minus-apex-aconfig-java-defaults"],
 }
 
