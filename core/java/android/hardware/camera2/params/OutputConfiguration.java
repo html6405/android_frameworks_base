@@ -1379,6 +1379,7 @@ public final class OutputConfiguration implements Parcelable {
                     mSurfaceType != other.mSurfaceType ||
                     mIsDeferredConfig != other.mIsDeferredConfig ||
                     mIsShared != other.mIsShared ||
+                    mConfiguredFormat != other.mConfiguredFormat ||
                     mConfiguredDataspace != other.mConfiguredDataspace ||
                     mConfiguredGenerationId != other.mConfiguredGenerationId ||
                     !Objects.equals(mPhysicalCameraId, other.mPhysicalCameraId) ||
