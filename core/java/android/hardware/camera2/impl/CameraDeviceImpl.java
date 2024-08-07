@@ -2594,16 +2594,13 @@ public class CameraDeviceImpl extends CameraDevice
         boolean initializationFailed = true;
         IBinder token = new Binder(TAG + " : " + mNextSessionId++);
         try {
-            boolean ret = CameraExtensionCharacteristics.registerClient(mContext, token,
-                    extensionConfiguration.getExtension(), mCameraId,
-                    CameraExtensionUtils.getCharacteristicsMapNative(characteristicsMap));
+            boolean ret = CameraExtensionCharacteristics.registerClient(mContext, token);
             if (!ret) {
                 token = null;
                 throw new UnsupportedOperationException("Unsupported extension!");
             }
 
-            if (CameraExtensionCharacteristics.areAdvancedExtensionsSupported(
-                        extensionConfiguration.getExtension())) {
+            if (CameraExtensionCharacteristics.areAdvancedExtensionsSupported()) {
                 mCurrentAdvancedExtensionSession =
                         CameraAdvancedExtensionSessionImpl.createCameraAdvancedExtensionSession(
                                 this, characteristicsMap, mContext, extensionConfiguration,
@@ -2618,8 +2615,7 @@ public class CameraDeviceImpl extends CameraDevice
             throw new CameraAccessException(CameraAccessException.CAMERA_ERROR);
         } finally {
             if (initializationFailed && (token != null)) {
-                CameraExtensionCharacteristics.unregisterClient(mContext, token,
-                        extensionConfiguration.getExtension());
+                CameraExtensionCharacteristics.unregisterClient(mContext, token);
             }
         }
     }
