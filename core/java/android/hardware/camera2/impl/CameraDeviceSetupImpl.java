@@ -17,7 +17,6 @@ package android.hardware.camera2.impl;
 
 import android.annotation.CallbackExecutor;
 import android.annotation.FlaggedApi;
-import android.content.Context;
 import android.hardware.ICameraService;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
@@ -41,17 +40,15 @@ import java.util.concurrent.Executor;
 public class CameraDeviceSetupImpl extends CameraDevice.CameraDeviceSetup {
     private final String mCameraId;
     private final CameraManager mCameraManager;
-    private final Context mContext;
     private final int mTargetSdkVersion;
 
     private final Object mInterfaceLock = new Object();
 
     public CameraDeviceSetupImpl(@NonNull String cameraId, @NonNull CameraManager cameraManager,
-            @NonNull Context context) {
+            int targetSdkVersion) {
         mCameraId = cameraId;
         mCameraManager = cameraManager;
-        mContext = context;
-        mTargetSdkVersion = context.getApplicationInfo().targetSdkVersion;
+        mTargetSdkVersion = targetSdkVersion;
     }
 
     @NonNull
@@ -107,43 +104,6 @@ public class CameraDeviceSetupImpl extends CameraDevice.CameraDeviceSetup {
                         mCameraId, config);
             } catch (ServiceSpecificException e) {
                 throw ExceptionUtils.throwAsPublicException(e);
-            } catch (RemoteException e) {
-                throw ExceptionUtils.throwAsPublicException(e);
-            }
-        }
-    }
-
-    @NonNull
-    @Override
-    public CameraCharacteristics getSessionCharacteristics(
-            @NonNull SessionConfiguration sessionConfig) throws CameraAccessException {
-        synchronized (mInterfaceLock) {
-            if (mCameraManager.isCameraServiceDisabled()) {
-                throw new CameraAccessException(CameraAccessException.CAMERA_DISCONNECTED,
-                        "Camera service is currently disabled");
-            }
-
-            ICameraService cameraService = mCameraManager.getCameraService();
-            if (cameraService == null) {
-                throw new CameraAccessException(CameraAccessException.CAMERA_DISCONNECTED,
-                        "Camera service is currently unavailable");
-            }
-
-            try {
-                CameraMetadataNative metadataNative = cameraService.getSessionCharacteristics(
-                        mCameraId, mTargetSdkVersion,
-                        CameraManager.shouldOverrideToPortrait(mContext), sessionConfig);
-
-                return new CameraCharacteristics(metadataNative);
-            } catch (ServiceSpecificException e) {
-                switch (e.errorCode) {
-                    case ICameraService.ERROR_INVALID_OPERATION ->
-                            throw new UnsupportedOperationException(
-                                    "Session Characteristics Query not supported by device.");
-                    case ICameraService.ERROR_ILLEGAL_ARGUMENT ->
-                            throw new IllegalArgumentException("Invalid Session Configuration");
-                    default -> throw ExceptionUtils.throwAsPublicException(e);
-                }
             } catch (RemoteException e) {
                 throw ExceptionUtils.throwAsPublicException(e);
             }
