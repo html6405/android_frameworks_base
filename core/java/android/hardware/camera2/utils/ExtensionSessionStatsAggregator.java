@@ -118,13 +118,4 @@ public class ExtensionSessionStatsAggregator {
                 + "  type: '" + stats.type + "'\n"
                 + "  isAdvanced: '" + stats.isAdvanced + "'\n";
     }
-
-    /**
-     * Return the current statistics key
-     *
-     * @return the current statistics key
-     */
-    public String getStatsKey() {
-        return mStats.key;
-    }
 }

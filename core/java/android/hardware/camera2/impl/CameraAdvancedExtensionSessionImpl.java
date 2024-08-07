@@ -674,8 +674,7 @@ public final class CameraAdvancedExtensionSessionImpl extends CameraExtensionSes
                         try {
                             if (mSessionProcessor != null) {
                                 mInitialized = true;
-                                mSessionProcessor.onCaptureSessionStart(mRequestProcessor,
-                                        mStatsAggregator.getStatsKey());
+                                mSessionProcessor.onCaptureSessionStart(mRequestProcessor);
                             } else {
                                 Log.v(TAG, "Failed to start capture session, session " +
                                                 " released before extension start!");
