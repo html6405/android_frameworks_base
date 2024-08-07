@@ -858,7 +858,6 @@ public final class CameraExtensionCharacteristics {
                     switch(format) {
                         case ImageFormat.YUV_420_888:
                         case ImageFormat.JPEG:
-                        case ImageFormat.JPEG_R:
                             break;
                         default:
                             throw new IllegalArgumentException("Unsupported format: " + format);
