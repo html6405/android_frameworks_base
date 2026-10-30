@@ -796,7 +796,10 @@ static jboolean android_os_Debug_isVmapStack(JNIEnv *env, jobject clazz)
     if (cfg_state == CONFIG_UNKNOWN) {
         std::map<std::string, std::string> configs;
         const status_t result = android::kernelconfigs::LoadKernelConfigs(&configs);
-        //CHECK(result == OK) << "Kernel configs could not be fetched. b/151092221";
+        if (result != OK) {
+            LOG(WARNING) << "Kernel configs unavailable; assuming CONFIG_VMAP_STACK is unset";
+            configs.clear();
+        }
         std::map<std::string, std::string>::const_iterator it = configs.find("CONFIG_VMAP_STACK");
         cfg_state = (it != configs.end() && it->second == "y") ? CONFIG_SET : CONFIG_UNSET;
     }
