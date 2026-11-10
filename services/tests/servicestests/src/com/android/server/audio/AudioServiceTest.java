@@ -109,6 +109,22 @@ public class AudioServiceTest {
         mTestLooper.dispatchAll();
     }
 
+    @Test
+    public void testDockAudioForceUse_respectsAnalogDockAndUserSetting() {
+        Assert.assertEquals(AudioSystem.FORCE_ANALOG_DOCK,
+                AudioService.getDockAudioForceUse(android.content.Intent.EXTRA_DOCK_STATE_LE_DESK,
+                        true));
+        Assert.assertEquals(AudioSystem.FORCE_NONE,
+                AudioService.getDockAudioForceUse(android.content.Intent.EXTRA_DOCK_STATE_LE_DESK,
+                        false));
+        Assert.assertEquals(AudioSystem.FORCE_DIGITAL_DOCK,
+                AudioService.getDockAudioForceUse(android.content.Intent.EXTRA_DOCK_STATE_HE_DESK,
+                        true));
+        Assert.assertEquals(AudioSystem.FORCE_NONE,
+                AudioService.getDockAudioForceUse(android.content.Intent.EXTRA_DOCK_STATE_HE_DESK,
+                        false));
+    }
+
     /**
      * Test muting the mic reports the expected value, and the corresponding intent was fired
      * @throws Exception

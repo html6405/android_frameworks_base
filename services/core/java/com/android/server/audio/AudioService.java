@@ -2212,8 +2212,7 @@ public class AudioService extends IAudioService.Stub
         // Restore setParameters and other queued setters.
         mRestorableParameters.restoreAll();
 
-        final int forDock = mDockAudioMediaEnabled ?
-                AudioSystem.FORCE_DIGITAL_DOCK : AudioSystem.FORCE_NONE;
+        final int forDock = getDockAudioForceUse(mDockState, mDockAudioMediaEnabled);
         mDeviceBroker.setForceUse_Async(AudioSystem.FOR_DOCK, forDock, "onAudioServerDied");
 
         synchronized (mSurroundLock) {
@@ -2994,6 +2993,15 @@ public class AudioService extends IAudioService.Stub
         dispatchStreamAliasingUpdate();
     }
 
+    @VisibleForTesting
+    static int getDockAudioForceUse(int dockState, boolean enabled) {
+        if (!enabled) {
+            return AudioSystem.FORCE_NONE;
+        }
+        return dockState == Intent.EXTRA_DOCK_STATE_LE_DESK
+                ? AudioSystem.FORCE_ANALOG_DOCK : AudioSystem.FORCE_DIGITAL_DOCK;
+    }
+
     private void readDockAudioSettings(ContentResolver cr)
     {
         mDockAudioMediaEnabled = mSettings.getGlobalInt(
@@ -3003,8 +3011,7 @@ public class AudioService extends IAudioService.Stub
                 MSG_SET_FORCE_USE,
                 SENDMSG_QUEUE,
                 AudioSystem.FOR_DOCK,
-                mDockAudioMediaEnabled ?
-                        AudioSystem.FORCE_DIGITAL_DOCK : AudioSystem.FORCE_NONE,
+                getDockAudioForceUse(mDockState, mDockAudioMediaEnabled),
                 new String("readDockAudioSettings"),
                 0);
 
@@ -11534,15 +11541,14 @@ public class AudioService extends IAudioService.Stub
                     default:
                         config = AudioSystem.FORCE_NONE;
                 }
-                // Low end docks have a menu to enable or disable audio
-                // (see mDockAudioMediaEnabled)
-                if (!((dockState == Intent.EXTRA_DOCK_STATE_LE_DESK)
-                        || ((dockState == Intent.EXTRA_DOCK_STATE_UNDOCKED)
-                                && (mDockState == Intent.EXTRA_DOCK_STATE_LE_DESK)))) {
-                    mDeviceBroker.setForceUse_Async(AudioSystem.FOR_DOCK, config,
-                            "ACTION_DOCK_EVENT intent");
-                }
+                // Analog docks obey the user's dock audio setting. Refresh the force
+                // when entering or leaving one, as well as when that setting changes.
                 mDockState = dockState;
+                if (dockState == Intent.EXTRA_DOCK_STATE_LE_DESK) {
+                    config = getDockAudioForceUse(mDockState, mDockAudioMediaEnabled);
+                }
+                mDeviceBroker.setForceUse_Async(AudioSystem.FOR_DOCK, config,
+                        "ACTION_DOCK_EVENT intent");
             } else if (action.equals(BluetoothHeadset.ACTION_ACTIVE_DEVICE_CHANGED)
                     || action.equals(BluetoothHeadset.ACTION_AUDIO_STATE_CHANGED)) {
                 mDeviceBroker.postReceiveBtEvent(intent);
