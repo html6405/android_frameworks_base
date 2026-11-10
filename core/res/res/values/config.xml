@@ -7175,6 +7175,10 @@
     <integer name="config_lowPowerStandbyNonInteractiveTimeout">5000</integer>
 
 
+    <!-- Optional legacy switch state file containing an Intent.EXTRA_DOCK_STATE integer.
+         Used only when no dock extcon device exists. -->
+    <string name="config_legacyDockStatePath" translatable="false"></string>
+
     <!-- Mapping to select an Intent.EXTRA_DOCK_STATE value from extcon state
          key-value pairs. Each entry is evaluated in order and is of the form:
             "[EXTRA_DOCK_STATE value],key1=value1,key2=value2[,...]"

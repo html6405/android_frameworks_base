@@ -82,9 +82,45 @@ public class DockObserverTest {
 
     @Before
     public void setUp() {
+        mContext.getOrCreateTestableResources().addOverride(R.string.config_legacyDockStatePath, "");
         if (Looper.myLooper() == null) {
             Looper.prepare();
         }
+    }
+
+    @Test
+    public void testLegacyDock_bootDockedThenUnplugged()
+            throws ExecutionException, InterruptedException {
+        setDeviceProvisioned(true);
+        DockObserver observer = new DockObserver(mInterceptingContext);
+        BroadcastInterceptingContext.FutureIntent docked =
+                mInterceptingContext.nextBroadcastIntent(Intent.ACTION_DOCK_EVENT);
+        observer.setLegacyDockStateForTesting("3\n");
+        TestableLooper.get(this).processAllMessages();
+        docked.assertNotReceived();
+        observer.onBootPhase(SystemService.PHASE_ACTIVITY_MANAGER_READY);
+        TestableLooper.get(this).processAllMessages();
+        assertThat(docked.get().getIntExtra(Intent.EXTRA_DOCK_STATE, -1))
+                .isEqualTo(Intent.EXTRA_DOCK_STATE_LE_DESK);
+
+        BroadcastInterceptingContext.FutureIntent undocked =
+                mInterceptingContext.nextBroadcastIntent(Intent.ACTION_DOCK_EVENT);
+        observer.setLegacyDockStateForTesting("0");
+        TestableLooper.get(this).processAllMessages();
+        assertThat(undocked.get().getIntExtra(Intent.EXTRA_DOCK_STATE, -1))
+                .isEqualTo(Intent.EXTRA_DOCK_STATE_UNDOCKED);
+    }
+
+    @Test
+    public void testLegacyDock_invalidStatesPreserveDockState() {
+        DockObserver observer = new DockObserver(mInterceptingContext);
+        observer.setLegacyDockStateForTesting("3");
+        observer.setLegacyDockStateForTesting(null);
+        observer.setLegacyDockStateForTesting("garbage");
+        observer.setLegacyDockStateForTesting("-1");
+        observer.setLegacyDockStateForTesting("5");
+        assertThat(observer.new DockObserverLocalService().getActualDockState())
+                .isEqualTo(Intent.EXTRA_DOCK_STATE_LE_DESK);
     }
 
     @Test

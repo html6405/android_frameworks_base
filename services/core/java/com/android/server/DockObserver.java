@@ -42,9 +42,11 @@ import com.android.internal.util.DumpUtils;
 import com.android.internal.util.FrameworkStatsLog;
 import com.android.server.ExtconUEventObserver.ExtconInfo;
 
+import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -201,12 +203,73 @@ final class DockObserver extends SystemService {
 
                 mExtconUEventObserver.startObserving(info);
             } else {
-                Slog.i(TAG, "No extcon dock device found in this kernel.");
+                startLegacyDockObserverLocked();
             }
         }
 
         mDockObserverLocalService = new DockObserverLocalService();
         LocalServices.addService(DockObserverInternal.class, mDockObserverLocalService);
+    }
+
+    private final UEventObserver mLegacyDockObserver = new UEventObserver() {
+        @Override
+        public void onUEvent(UEvent event) {
+            synchronized (mLock) {
+                setLegacyDockStateLocked(event.get("SWITCH_STATE"));
+            }
+        }
+    };
+
+    @GuardedBy("mLock")
+    private void startLegacyDockObserverLocked() {
+        String path = getContext().getResources().getString(R.string.config_legacyDockStatePath);
+        if (path.isEmpty()) {
+            Slog.i(TAG, "No extcon dock device found in this kernel.");
+            return;
+        }
+        try {
+            File stateFile = new File(path).getCanonicalFile();
+            String devicePath = stateFile.getParent();
+            if (!devicePath.startsWith("/sys/devices/")) {
+                throw new IOException("Not a sysfs device: " + path);
+            }
+            // Subscribe before reading so a change during initialization is not lost.
+            mLegacyDockObserver.startObserving("DEVPATH=" + devicePath.substring(4));
+            try (FileReader reader = new FileReader(stateFile)) {
+                char[] buffer = new char[32];
+                int length = reader.read(buffer);
+                if (length > 0) {
+                    setLegacyDockStateLocked(new String(buffer, 0, length));
+                }
+            }
+            mPreviousDockState = mActualDockState;
+        } catch (IOException e) {
+            Slog.e(TAG, "Unable to observe legacy dock " + path, e);
+        }
+    }
+
+    @VisibleForTesting
+    void setLegacyDockStateForTesting(String state) {
+        synchronized (mLock) {
+            setLegacyDockStateLocked(state);
+        }
+    }
+
+    @GuardedBy("mLock")
+    private void setLegacyDockStateLocked(String state) {
+        if (state == null) {
+            return;
+        }
+        try {
+            int dockState = Integer.parseInt(state.trim());
+            if (dockState < Intent.EXTRA_DOCK_STATE_UNDOCKED
+                    || dockState > Intent.EXTRA_DOCK_STATE_HE_DESK) {
+                throw new NumberFormatException("Unknown dock state: " + state);
+            }
+            setActualDockStateLocked(dockState);
+        } catch (NumberFormatException e) {
+            Slog.w(TAG, "Invalid legacy dock state: " + state);
+        }
     }
 
     public class DockObserverLocalService extends DockObserverInternal {
