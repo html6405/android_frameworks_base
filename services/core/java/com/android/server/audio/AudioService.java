@@ -1663,6 +1663,11 @@ public class AudioService extends IAudioService.Stub
 
         updateAudioHalPids();
 
+        if (!mContext.getResources().getBoolean(
+                com.android.internal.R.bool.config_fixedVolumeAnalogDock)) {
+            mFixedVolumeDevices.remove(AudioSystem.DEVICE_OUT_ANLG_DOCK_HEADSET);
+        }
+
         mUseFixedVolume = mContext.getResources().getBoolean(
                 com.android.internal.R.bool.config_useFixedVolume);
 

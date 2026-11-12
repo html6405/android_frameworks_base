@@ -3706,6 +3706,10 @@
          stream or global volumes. -->
     <bool name="config_useFixedVolume">false</bool>
 
+    <!-- Analog line-out docks normally use external volume controls. Set false
+         on devices that should apply software volume to their analog dock. -->
+    <bool name="config_fixedVolumeAnalogDock">true</bool>
+
     <!-- The list of IMEs which should be disabled until used.
          This function suppresses update notifications for these pre-installed apps.
          We need to set this configuration carefully that they should not have functionarities
